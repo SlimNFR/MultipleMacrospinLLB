@@ -1,0 +1,10 @@
+n_at 1
+a 0.35e-9
+Tc 631.0
+Ms0_CGS 500
+K0_CGS 5.3e4
+lambda 0.1
+eps 1.0
+ex 0.0
+ey 0.0
+ez 1.0
