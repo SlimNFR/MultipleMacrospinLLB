@@ -21,25 +21,36 @@ namespace input{
 
 
 // //---Material parameters
+int n_materials; //No. of materials in my system
+double lengthscale; //The lengthscale can be nm, microns, mm and so on..
+std::vector<int>length; //Material lengths
+std::vector<int>width; //Material widths
+std::vector<int>height; //Material heights
+std::vector<int>unitcell_size; //Assuming a cubic cell type, this sets the "a" dimension of the cell.
+std::vector<double>unitcell_volume; // Macrospin volume: [m^3]
+std::vector<int>material_total_cells; //number of total cells per material
+std::vector<int>nx_cells; //Total cells on x per material
+std::vector<int>ny_cells; //Total cells on y per material
+std::vector<int>nz_cells; //Total cells on z per material
+int n_cells; //Total number of cells in the structure
 int n_at; //Number of atoms per unit cell: adim.
-double a; // Lattice spacing: [m]
-double Tc; // Curie temperature: [K]
-double Ms0_CGS; // Saturation magnetisation: [emu/cc]
-double K0_CGS; // Magnetocrystlline first-order anis. constant: [erg/cc]
-double Ms0_SI; //Saturation magnetisation: [A/m]
-double K0_SI; //: Magnetocrystlline first-order anis. constant: [J/m^3]
-double m_e; //Equilibrium magnetisation: []
-double Ms_T; //Saturation magnetisation at T
-double K_T;// Magnetocrystalline anisotropy constant at T
-double volume; // Macrospin volume: [m^3]
-double mu_s; // Atomic magnetic moment: [J/T]
-double lambda; // Microscopic coupling constant: adimensional
-double chi_par; //Parallel susceptibility: []
-double chi_perp; //Perpendicular susceptibility: []
-double eps; //SW correction factor: adim.
-double ex; // H_ani_x
-double ey; // H_ani_y
-double ez; // H_ani_z
+
+std::vector<double>Tc; // Curie temperature: [K]
+std::vector<double>Ms0_CGS; // Saturation magnetisation: [emu/cc]
+std::vector<double>K0_CGS; // Magnetocrystlline first-order anis. constant: [erg/cc]
+std::vector<double>Ms0_SI; //Saturation magnetisation: [A/m]
+std::vector<double>K0_SI; //: Magnetocrystlline first-order anis. constant: [J/m^3]
+std::vector<double>m_e; //Equilibrium magnetisation: []
+std::vector<double>Ms_T; //Saturation magnetisation at T
+std::vector<double>K_T; //Magnetocrystalline anisotropy constant at T
+std::vector<double>mu_s; // Atomic magnetic moment: [J/T]
+std::vector<double>lambda; // Microscopic coupling constant: adimensional
+std::vector<double>chi_par; //Parallel susceptibility: []
+std::vector<double>chi_perp; //Perpendicular susceptibility: []
+std::vector<double>eps; //SW correction factor: adim.
+std::vector<double>ex; // H_ani_x
+std::vector<double>ey; // H_ani_y
+std::vector<double>ez; // H_ani_z
 
 // //---Simulation paramters
 double T; // Magnetic moment temperature (electron temperature in this model): [K]
@@ -49,8 +60,8 @@ double B_phi; //Angle between in-plane field projection and the Ox axis
 double bx; // H_ext_x/H_ext 
 double by; // H_ext_y/H_ext
 double bz; // H_ext_z/H_ext
-double alpha_par; //Longitudinal damping parameter: adimensional. Avail. only for T<Tc
-double alpha_perp; //Transversal damping parameter: adimensional. Avail. only for T<Tc
+std::vector<double>alpha_par; //Longitudinal damping parameter: adimensional. Avail. only for T<Tc
+std::vector<double>alpha_perp; //Transversal damping parameter: adimensional. Avail. only for T<Tc
 
 int t_min_equil; // Time will be given as an integer. It needs to be multiplied with timescale_equil to obtain the real-time.
 int t_max_equil;
@@ -68,9 +79,9 @@ double T_pulse;
 int pulse_duration; //fs !!Important, this needs to be in the same time unit as the timescale_laser_dynamics variable
 
 //---Initial conditions
-double mx_0;
-double my_0;
-double mz_0;
+std::vector<double>mx_0;
+std::vector<double>my_0;
+std::vector<double>mz_0;
 
 //---Simulation
 
@@ -98,16 +109,20 @@ if(!inFile)
 
     std::cout<<"Simulation parameters: "<<"\n";
     std::cout<<std::endl;
+
+
     inFile >> s1>> input::T;
     std::cout <<"Initial Temperature [K]:"<< " " << input::T << "\t"<< std::endl;
   	inFile >> s1>> input::B_app;
     std::cout <<"Applied field strength [T]:"<< " " << input::B_app << "\t"<< std::endl;
     inFile >> s1>> input::B_theta;
-    input::B_theta=input::B_theta*M_PI/180.0;
     std::cout <<"Applied field theta angle [degr.]:"<< " " << input::B_theta << "\t"<< std::endl;
+    input::B_theta=input::B_theta*M_PI/180.0;
+
     inFile >> s1>> input::B_phi;
-    input::B_phi=input::B_phi*M_PI/180.0;
     std::cout <<"Applied field phi angle [degr.]:"<< " " << input::B_phi << "\t"<< std::endl;  
+    input::B_phi=input::B_phi*M_PI/180.0;
+
     input::bx= sin(input::B_theta)*cos(input::B_phi); // H_ext_x/H_ext 
 	input::by = sin(input::B_theta)*sin(input::B_phi); // H_ext_y/H_ext
 	input::bz = cos(input::B_theta); // H_ext_z/H_ext
@@ -139,12 +154,7 @@ if(!inFile)
     std::cout <<"Temperature pulse [K]:"<< " " << input::T_pulse << "\t"<< std::endl;
     inFile >> s1>> input::pulse_duration;
     std::cout <<"Pulse duration [adim.] //Laser dynamics timescale:" << " " << input::pulse_duration << "\t"<< std::endl;
-    inFile >> s1>> input::mx_0;
-    std::cout <<"Initial mx coordinate [adim.]:"<< " " << input::mx_0 << "\t"<< std::endl;
-    inFile >> s1>> input::my_0;
-    std::cout <<"Initial my coordinate [adim.]:"<<" " << input::my_0 << "\t"<< std::endl;
-    inFile >> s1>> input::mz_0;
-    std::cout <<"Initial mz coordinate [adim.]:" << "" << input::mz_0 << "\t"<< std::endl;
+    
     inFile >> s1>> input::m_vs_T_curve;
     std::cout <<"MT_curve [bool]:"<<"\t" << input::m_vs_T_curve << "\t"<< std::endl;
     inFile >> s1>> input::chipar_vs_T_curve;
@@ -177,37 +187,255 @@ if(!inFile)
 
     std::cout<<"Material parameters: "<<"\n";
    	std::cout<<std::endl;
+
+    inFile >> s1>> input::n_materials;
+    std::cout <<"Number of materials simulated [adim.]:"<< " " << input::n_materials << "\t"<< std::endl;
+
+    inFile >> s1>> input::lengthscale;
+    std::cout <<"Lengthscale [m]:"<< " " << input::lengthscale << "\t"<< std::endl;
+    
+    inFile>>s1;
+    input::length.resize(n_materials);
+    std::cout<<"Material lengths [m]:"<<" ";
+    for (int i = 0; i <input::n_materials;i++)
+    {
+        inFile>>input::length[i];
+        std::cout<<input::length[i]*input::lengthscale<<" ";
+    }
+    std::cout<<"\n";
+
+    inFile>>s1;
+    input::width.resize(n_materials);
+    std::cout<<"Material widths [m]:"<<" ";
+    for (int i = 0; i <input::n_materials;i++)
+    {
+        inFile>>input::width[i];
+        std::cout<<input::width[i]*input::lengthscale<<" ";
+    }
+    std::cout<<"\n";
+
+    inFile>>s1;
+    input::height.resize(n_materials);
+    std::cout<<"Material heights [m]:"<<" ";
+    for (int i = 0; i <input::n_materials;i++)
+    {
+        inFile>>input::height[i];
+        std::cout<<input::height[i]*input::lengthscale<<" ";
+    }
+    std::cout<<"\n";
+
+    inFile>>s1;
+    input::unitcell_size.resize(n_materials);
+    input::unitcell_volume.resize(n_materials);
+    input::material_total_cells.resize(n_materials);
+    input::nx_cells.resize(n_materials);
+    input::ny_cells.resize(n_materials);
+    input::nz_cells.resize(n_materials);
+    input::n_cells = 0;
+    std::cout<<"Unitcell size/a dimension [m]:"<<" ";
+    for (int i = 0; i <input::n_materials;i++)
+    {
+        inFile>>input::unitcell_size[i];
+        std::cout<<(double)input::unitcell_size[i]*input::lengthscale<<" ";
+
+
+        //At the same time, I can calculate the unitcell volume for each material and the number of total cells in each material
+        input::unitcell_volume[i]=pow(input::unitcell_size[i]*input::lengthscale,3.0);
+        input::material_total_cells[i]=(input::length[i]*input::width[i]*input::height[i])/pow(input::unitcell_size[i],3.0);
+
+        //I also calculate the total cells on x,y,z per material
+
+        input::nx_cells[i]= input::length[i]/input::unitcell_size[i];
+        input::ny_cells[i]= input::width[i]/input::unitcell_size[i];
+        input::nz_cells[i]= input::height[i]/input::unitcell_size[i];
+
+        //The total number of cells in the sytem
+        input::n_cells += input::material_total_cells[i]; 
+
+    }
+    ;
+    std::cout<<"\n";
+    
+    std::cout<<"Total number of cells [adim.]:"<<input::n_cells<<"\n";
+
+    std::cout<<"No. of cells per material [adim.]:"<<" ";
+    for (int i = 0; i < input::n_materials; i++)
+    {
+        std::cout<<input::material_total_cells[i]<<" ";
+    }
+    std::cout<<"\n";
+
+    std::cout<<"No. of cells per material on x [adim.]:"<<" ";
+    for (int i = 0; i < input::n_materials; i++)
+    {
+        std::cout<<input::nx_cells[i]<<" ";
+    }
+    std::cout<<"\n";
+
+    std::cout<<"No. of cells per material on y [adim.]:"<<" ";
+    for (int i = 0; i < input::n_materials; i++)
+    {
+        std::cout<<input::ny_cells[i]<<" ";
+    }
+    std::cout<<"\n";
+
+    std::cout<<"No. of cells per material on z [adim.]:"<<" ";
+    for (int i = 0; i < input::n_materials; i++)
+    {
+        std::cout<<input::nz_cells[i]<<" ";
+    }
+    std::cout<<"\n";
+
+    
+
+
     inFile >> s1>> input::n_at;
     std::cout <<"Number of atoms per unit cell [adim.]:"<< " " << input::n_at << "\t"<< std::endl;
-    inFile >> s1>> input::a;
-    std::cout <<"Lattice spacing [m]:"<<  " " << input::a << "\t"<< std::endl;
-    inFile >> s1>> input::Tc;
-    std::cout <<"Curie Temperature [K]:"<< " " << input::Tc << "\t"<< std::endl;
-    inFile >> s1>> input::Ms0_CGS;
-    std::cout <<"Saturation Magnetisation CGS [emu/cc]:"<< " " << input::Ms0_CGS << "\t"<< std::endl;
-    inFile >> s1>> input::K0_CGS;
-    std::cout <<"Magnetocrystalline Anisotropy Constant CGS [erg/cc]:"<< " " << input::K0_CGS << "\t"<< std::endl;
 
-    input::Ms0_SI = input::Ms0_CGS*1e3;
-    std::cout<<"Saturation Magnetisation SI [A/m]:"<<" "<<input::Ms0_SI<<"\t"<<std::endl;
-    input::K0_SI = input::K0_CGS*1e-1;
-    std::cout<<"Magnetocrystalline Anisotropy Constant SI [J/m3]:"<<" "<<input::K0_SI<<"\t"<<std::endl;
-    input::volume=input::a*input::a*input::a;
-    std::cout<<"Volume [m3]:"<<" "<<input::volume<<"\t"<<std::endl;
-    input::mu_s=input::volume*input::Ms0_SI/input::n_at;
-    std::cout<<"Atomic magnetic moment [J/T]:"<<" "<<input::mu_s<<"\t"<<std::endl;
-	
-	inFile >> s1>> input::lambda;
-    std::cout <<"Microscopic damping parameter [adim.]:"<< " " << input::lambda << "\t"<< std::endl;    
-    inFile >> s1>> input::eps;
-    std::cout <<"Spin-wave correction factor [adim.]:"<< " " << input::eps << "\t"<< std::endl;
-    inFile >> s1>> input::ex;
-    std::cout <<"Easy-axis X coordinate [adim.]:"<< " " << input::ex << "\t"<< std::endl;
-    inFile >> s1>> input::ey;
-    std::cout <<"Easy-axis Y coordinate [adim.]:"<< " " << input::ey << "\t"<< std::endl;
-    inFile >> s1>> input::ez;
-    std::cout <<"Easy-axis Z coordinate [adim.]:"<< " " << input::ez << "\t"<< std::endl;
-   	std::cout<<std::endl;
+    
+    inFile >> s1;
+    input::Tc.resize(n_materials);
+    std::cout <<"Curie Temperature [K]:"<< " " ;
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>>input::Tc[i];
+        std::cout<< input::Tc[i] << " ";
+    }
+    std::cout<<"\n";
+    
+    inFile >> s1;
+    input::Ms0_CGS.resize(n_materials);
+    std::cout <<"Saturation Magnetisation CGS [emu/cc]:"<< " ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>> input::Ms0_CGS[i];
+        std::cout<< input::Ms0_CGS[i] << " ";
+    }
+    std::cout<<"\n";
+
+
+    inFile >> s1;
+    input::K0_CGS.resize(n_materials);
+    std::cout <<"Magnetocrystalline Anisotropy Constant CGS [erg/cc]:"<<" ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>> input::K0_CGS[i];
+        std::cout<< input::K0_CGS[i] << " ";
+    }
+    std::cout<<"\n";
+    
+
+    input::Ms0_SI.resize(n_materials);
+    std::cout<<"Saturation Magnetisation SI [A/m]:"<<" ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        input::Ms0_SI[i] = input::Ms0_CGS[i]*1e3;
+        std::cout<< input::Ms0_SI[i] << " ";
+    }
+    std::cout<<"\n";
+
+    
+
+    input::K0_SI.resize(n_materials);
+    std::cout<<"Magnetocrystalline Anisotropy Constant SI [J/m3]:"<<" ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        input::K0_SI[i] = input::K0_CGS[i]*1e-1;
+        std::cout<< input::K0_SI[i] << " ";
+    }
+    std::cout<<"\n";
+
+
+    input::mu_s.resize(n_materials);
+    std::cout<<"Atomic magnetic moment [J/T]:"<<" ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        input::mu_s[i] = input::unitcell_volume[i]*input::Ms0_SI[i]/input::n_at;
+        std::cout<< input::mu_s[i] << " ";
+    }
+    std::cout<<"\n";    
+
+    inFile >> s1;
+    input::lambda.resize(n_materials);
+    std::cout <<"Microscopic damping parameter [adim.]:"<< " ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>> input::lambda[i];
+        std::cout<< input::lambda[i] << " ";
+    }
+    std::cout<<"\n";  
+
+    inFile >> s1;
+    input::eps.resize(n_materials);
+    std::cout <<"Spin-wave correction factor [adim.]:"<< " ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>>input::eps[i];
+        std::cout<< input::eps[i] << " ";
+    }
+    std::cout<<"\n";  	
+
+    inFile >> s1;
+    input::ex.resize(n_materials);
+    std::cout <<"Easy-axis X coordinate [adim.]:"<< " ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>>input::ex[i];
+        std::cout<< input::ex[i] << " ";
+    }
+    std::cout<<"\n";    
+
+    inFile >> s1;
+    input::ey.resize(n_materials);
+    std::cout <<"Easy-axis Y coordinate [adim.]:"<< " ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>>input::ey[i];
+        std::cout<< input::ey[i] << " ";
+    }
+    std::cout<<"\n";
+
+
+    inFile >> s1;
+    input::ez.resize(n_materials);
+    std::cout <<"Easy-axis Z coordinate [adim.]:"<< " ";
+    for(int i=0; i<input::n_materials; i++)
+    {
+        inFile>>input::ez[i];
+        std::cout<< input::ez[i] << " ";
+    }
+    std::cout<<"\n";
+
+    inFile >> s1;
+    std::cout <<"Initial mx coordinate [adim.]:"<< " ";
+    input::mx_0.resize(input::n_materials);
+    for(int i=0; i<n_materials;i++)
+    {
+        inFile>>input::mx_0[i];
+        std::cout<< input::mx_0[i] << " ";
+    }
+    std::cout<<"\n";
+
+    inFile >> s1;
+    std::cout <<"Initial my coordinate [adim.]:"<< " ";
+    input::my_0.resize(input::n_materials);
+    for(int i=0; i<n_materials;i++)
+    {
+        inFile>>input::my_0[i];
+        std::cout<< input::my_0[i] << " ";
+    }
+    std::cout<<"\n";
+
+    inFile >> s1;
+    std::cout <<"Initial mz coordinate [adim.]:"<< " ";
+    input::mz_0.resize(input::n_materials);
+    for(int i=0; i<n_materials;i++)
+    {
+        inFile>>input::mz_0[i];
+        std::cout<< input::mz_0[i] << " ";
+    }
+    std::cout<<"\n";
+    std::cout<<"\n";
 
     return 0;
 

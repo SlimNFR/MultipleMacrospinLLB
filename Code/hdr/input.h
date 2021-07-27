@@ -6,7 +6,7 @@
 
 //---Standard libraries
 #include<cmath>
-
+#include<vector>
 //---User-defined libraries
 
 
@@ -24,25 +24,37 @@ const double k_B = 1.381*1e-23; // Boltzmann constant [J/K]
 
 
 //---Material parameters
-extern int n_at; //Number of atoms per unit cell: adim.
-extern double a; // Lattice spacing: [m]
-extern double Tc; // Curie temperature: [K]
-extern double Ms0_CGS; // Saturation magnetisation: [emu/cc]
-extern double K0_CGS; // Magnetocrystlline first-order anis. constant: [erg/cc]
-extern double Ms0_SI; //Saturation magnetisation: [A/m]
-extern double K0_SI; //: Magnetocrystlline first-order anis. constant: [J/m^3]
-extern double m_e; //Equilibrium magnetisation: []
-extern double Ms_T; //Saturation magnetisation at T
-extern double K_T; //Magnetocrystalline anisotropy constant at T
-extern double volume; // Macrospin volume: [m^3]
-extern double mu_s; // Atomic magnetic moment: [J/T]
-extern double lambda; // Microscopic coupling constant: adimensional
-extern double chi_par; //Parallel susceptibility: []
-extern double chi_perp; //Perpendicular susceptibility: []
-extern double eps; //SW correction factor: adim.
-extern double ex; // H_ani_x
-extern double ey; // H_ani_y
-extern double ez; // H_ani_z
+extern int n_materials;
+extern double lengthscale;
+extern std::vector<int>length;
+extern std::vector<int>width;
+extern std::vector<int>height;
+extern std::vector<int>unitcell_size;
+extern std::vector<double> unitcell_volume;
+extern std::vector<int>material_total_cells; 
+
+extern std::vector<int>nx_cells;
+extern std::vector<int>ny_cells;
+extern std::vector<int>nz_cells;
+extern int n_cells;
+extern int n_at;
+
+extern std::vector<double> Tc;
+extern std::vector<double> Ms0_CGS;
+extern std::vector<double> K0_CGS;
+extern std::vector<double> Ms0_SI;
+extern std::vector<double> K0_SI;
+extern std::vector<double> m_e;
+extern std::vector<double> Ms_T;
+extern std::vector<double> K_T;
+extern std::vector<double> mu_s;
+extern std::vector<double> lambda;
+extern std::vector<double> chi_par;
+extern std::vector<double> chi_perp;
+extern std::vector<double> eps;
+extern std::vector<double> ex;
+extern std::vector<double> ey;
+extern std::vector<double> ez;
 
 //---Simulation paramters
 extern double T; // Magnetic moment temperature (electron temperature in this model): [K]
@@ -52,8 +64,8 @@ extern double B_phi; //Angle between in-plane field projection and the Ox axis
 extern double bx;// H_ext_x/H_ext 
 extern double by; // H_ext_y/H_ext
 extern double bz; // H_ext_z/H_ext
-extern double alpha_par; //Longitudinal damping parameter: adimensional. Avail. only for T<Tc
-extern double alpha_perp; //Transversal damping parameter: adimensional. Avail. only for T<Tc
+extern std::vector<double>alpha_par; //Longitudinal damping parameter: adimensional. Avail. only for T<Tc
+extern std::vector<double>alpha_perp; //Transversal damping parameter: adimensional. Avail. only for T<Tc
 
 extern int t_min_equil; // Time will be given as an integer. It needs to be multiplied with 10^-12 at the end.
 extern int t_max_equil;
@@ -72,9 +84,9 @@ extern int pulse_duration; //fs !!Important, this needs to be in the same time u
 
 
 //---Initial conditions
-extern double mx_0;
-extern double my_0;
-extern double mz_0;
+extern std::vector<double>mx_0;
+extern std::vector<double>my_0;
+extern std::vector<double>mz_0;
 
 //---Simulation
 

@@ -7,7 +7,7 @@
 
 //---User-defined libraries
 #include"field.h"
-#include"particle.h"
+#include"structure.h"
 #include"input.h"
 
 //---Namespace field
@@ -15,126 +15,164 @@
 namespace field{
 	
 //---Variables
-double Bx_ani, By_ani, Bz_ani = 0.0;
-double Bx_app, By_app, Bz_app = 0.0;
-double Bx_lon, By_lon, Bz_lon = 0.0;
-double Bx_eff, By_eff, Bz_eff = 0.0;
+std::vector<double> Bx_app, By_app, Bz_app;
+std::vector<double> Bx_ani, By_ani, Bz_ani;
+std::vector<double> Bx_lon, By_lon, Bz_lon;
+std::vector<double> Bx_eff, By_eff, Bz_eff;
 
-double torque_x, torque_y, torque_z, torque_mod = 0.0;
+std::vector<double> torque_x, torque_y, torque_z, torque_mod;
 
 //---Functions
-int uniax_anis_f(double mx, double my, double mz,
-				 double ex, double ey, double ez,
-				 double K, double Ms,
-				 double &Bx_ani, double &By_ani, double &Bz_ani)
+int uniax_anis_f(int n_cells,
+				 std::vector<double>K, std::vector<double>Ms,
+				 std::vector<double>ex, std::vector<double> ey, std::vector<double> ez,
+				 std::vector<double>mx, std::vector<double> my, std::vector<double> mz,
+				 std::vector<double>&Bx_ani, std::vector<double> &By_ani, std::vector<double> &Bz_ani,
+				 std::vector<int>mat_id)
 {
 	//calculates the anisotropy field components
-	
-	double Hk=2.0*K/Ms; //Anisotropy field strength [T]
+	int mat; //will store the material id.
 
-	//std::cout<<"Ms inside uniax field func: "<<Ms<<"\n";
-	//std::cout<<"Withing anis field func: | mx:"<<mx<<"| my:"<<my<<"| mz:"<<mz<<"\n";
-	Bx_ani = Hk*(mx*ex + my*ey + mz*ez)*ex;
-	By_ani = Hk*(mx*ex + my*ey + mz*ez)*ey;
-	Bz_ani = Hk*(mx*ex + my*ey + mz*ez)*ez;
+	for(int cell=0; cell<n_cells; cell++)
+	{	
+		mat = mat_id[cell];//Get the material id of the spin
 
-	//std::cout<<"Within function"<<Bx_ani<<" "<<By_ani<<" "<<Bz_ani<<"\n";
-	//std::cout<<"Within function"<<mx<<" "<<my<<" "<<mz<<"\n";
-	//std::cout<<"Within function"<<ex<<" "<<ey<<" "<<ez<<"\n";
+		Bx_ani[cell] = 2.0*K[mat]/Ms[mat]*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ex[mat];	//B_ani : [T]
+		By_ani[cell] = 2.0*K[mat]/Ms[mat]*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ey[mat];
+		Bz_ani[cell] = 2.0*K[mat]/Ms[mat]*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ez[mat];
+	}
 
 	return 0;
 }
 				
 
-int zeeman_f(double B_app, double bx, double by, double bz,
-			 double &Bx_app, double &By_app, double &Bz_app)
+int zeeman_f(int n_cells,
+			 double B_app, double bx, double by, double bz,
+			 std::vector<double> &Bx_app, std::vector<double> &By_app, std::vector<double> &Bz_app)
 {
 	//calculates the zeeman field components
-	//std::cout<<"Inside zeeman field function"<<"bx: "<<bx<<"|by: "<<by<<"|bz: "<<bz<<"|B_app: "<<B_app<<"\n";
-	Bx_app=B_app*bx;
-	By_app=B_app*by;
-	Bz_app=B_app*bz;
+	
+	for(int cell=0; cell<n_cells; cell++)
+	{
+		Bx_app[cell]=B_app*bx; //B_app: [T]
+		By_app[cell]=B_app*by;
+		Bz_app[cell]=B_app*bz;
 
+	}
 	return 0;
 }
 
 
-int longitudinal_f(double mx, double my, double mz,
-				   double chi_par, double m_e,
-				   double &Bx_lon, double &By_lon, double &Bz_lon)
+int longitudinal_f(int n_cells,
+				   std::vector<double> chi_par, std::vector<double> m_e,
+				   std::vector<double> mx, std::vector<double> my, std::vector<double> mz,
+				   std::vector<double> &Bx_lon, std::vector<double> &By_lon, std::vector<double> &Bz_lon,
+				   std::vector<int>mat_id)
 {
 	//calculates the longitudinal field components
 	//I assume I work below Tc for now
-
-	if(input::T==0){Bx_lon=0;By_lon=0;Bz_lon=0; return 0;}
-	//Temporary variables
-	double m_squared = mx*mx + my*my + mz*mz;
-	//std::cout<<"Withing long field func: | mx:"<<mx<<"| my:"<<my<<"| mz:"<<mz<<"\n";
-	//chi_par=0.1;
-	double pre_factor = (0.5*(1.0/chi_par)) * (1.0 - (m_squared/(m_e*m_e)) );
-	//std::cout<<"Withing longitudinal field:"<<"chi_par: "<<chi_par<<"| pre_factor: "<<pre_factor<<"| m_squared: "<<m_squared<<"| m_e:"<<m_e<<"\n";
-	Bx_lon = pre_factor*mx;
-	By_lon = pre_factor*my;
-	Bz_lon = pre_factor*mz;
+	double m_squared; //This will save the value of mxmx + mymy + mzmz
+	double pre_factor; //This is the prefactor in front of the long. field (1/(2chi_par))(1-m^2/me^2)
+	int mat; //This will store the material id
+	if(input::T==0)
+	{	//If the temperature is zero then no longitudinal field should be present..
+		std::fill(Bx_lon.begin(), Bx_lon.end(), 0.0);
+		std::fill(By_lon.begin(), By_lon.end(), 0.0);
+		std::fill(Bz_lon.begin(), Bz_lon.end(), 0.0);
+		return 0;
+	}
+	
+	for(int cell=0; cell<n_cells; cell++)
+	{
+		mat = mat_id[cell];//Get material id.
+		m_squared = mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]; 
+		pre_factor = (0.5*(1.0/chi_par[mat])) * (1.0 - (m_squared/(m_e[mat]*m_e[mat]))); 
+		Bx_lon[cell] = pre_factor*mx[cell]; //B_lon: [T]
+		By_lon[cell] = pre_factor*my[cell];
+		Bz_lon[cell] = pre_factor*mz[cell];
+	}
 
 	return 0;
 
 }
 
 
-int effective_f(double Bx_ani, double By_ani, double Bz_ani,
-				double Bx_app, double By_app, double Bz_app,
-				double &Bx_eff, double &By_eff, double &Bz_eff)
+int effective_f(int n_cells,
+				std::vector<double> Bx_ani, std::vector<double> By_ani, std::vector<double> Bz_ani,
+				std::vector<double> Bx_app, std::vector<double> By_app, std::vector<double> Bz_app,
+				std::vector<double> Bx_lon, std::vector<double> By_lon, std::vector<double> Bz_lon,
+				std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff)
 {
 	//calculates the total field (effective) components
 
-	Bx_eff = Bx_ani + Bx_app + Bx_lon;
-	By_eff = By_ani + By_app + By_lon;
-	Bz_eff = Bz_ani + Bz_app + Bz_lon;
+	for(int cell=0; cell<n_cells;cell++)
+	{
+		Bx_eff[cell] = Bx_ani[cell] + Bx_app[cell] + Bx_lon[cell]; //B_eff: [T]
+		By_eff[cell] = By_ani[cell] + By_app[cell] + By_lon[cell];
+		Bz_eff[cell] = Bz_ani[cell] + Bz_app[cell] + Bz_lon[cell];
+	}
+	
 
 	return 0;
 
 }
 
-int effective_torque(double mx, double my, double mz,
-					 double Bx_eff, double By_eff, double Bz_eff,
-					 double &torque_x, double &torque_y, double &torque_z, double  &torque_mod)
+int effective_torque(int n_cells,
+					 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+					 std::vector<double> Bx_eff, std::vector<double> By_eff, std::vector<double> Bz_eff,
+					 std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
+					 std::vector<double>  &torque_mod)
 {
 
-	torque_x = (my*Bz_eff - mz*By_eff);
-	torque_y = (mz*Bx_eff - mx*Bz_eff);
-	torque_z = (mx*By_eff - my*Bx_eff);
+	for(int cell=0; cell<n_cells; cell++)
+	{
 
-	torque_mod = sqrt(torque_x*torque_x+
-				 	  torque_y*torque_y+
-				 	  torque_z*torque_z);
+	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell]);
+	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell]);
+	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell]);
+
+	torque_mod[cell] = sqrt(torque_x[cell]*torque_x[cell]+
+				 	  	    torque_y[cell]*torque_y[cell]+
+				 	  		torque_z[cell]*torque_z[cell]);	
+
+	}
+	
 
 	return 0;
 }
 
 int calculate()
 {
-	field::uniax_anis_f(particle::mx, particle::my, particle::mz,
+	field::uniax_anis_f(input::n_cells,
+						input::K0_SI, input::Ms0_SI,
 						input::ex, input::ey, input::ez,
-						input::K_T, input::Ms_T, 
-						field::Bx_ani, field::By_ani, field::Bz_ani);
+						macrospin::mx, macrospin::my, macrospin::mz,
+						field::Bx_ani, field::By_ani, field::Bz_ani,
+						material::id);
 
-	field::zeeman_f(input::B_app, input::bx, input::by, input::bz,
+	field::zeeman_f(input::n_cells,
+					input::B_app, input::bx, input::by, input::bz,
 					field::Bx_app, field::By_app, field::Bz_app);
 
-	field::longitudinal_f(particle::mx, particle::my, particle::mz,
-			   		      input::chi_par, input::m_e,
-				          field::Bx_lon, field::By_lon, field::Bz_lon);
+	field::longitudinal_f(input::n_cells,
+						  input::chi_par, input::m_e,
+						  macrospin::mx, macrospin::my, macrospin::mz,
+						  field::Bx_lon, field::By_lon, field::Bz_lon,
+						  material::id);
 
-	field::effective_f(field::Bx_ani, field::By_ani, field::Bz_ani,
+	field::effective_f(input::n_cells,
+					   field::Bx_ani, field::By_ani, field::Bz_ani,
 					   field::Bx_app, field::By_app, field::Bz_app,
+					   field::Bx_lon, field::By_lon, field::Bz_lon,
 					   field::Bx_eff, field::By_eff, field::Bz_eff);
 
-	field::effective_torque(particle::mx, particle::my, particle::mz,
-							field::Bx_eff, field::By_eff, field::Bz_eff,
-					 		field::torque_x, field::torque_y, field::torque_z, field::torque_mod);
+	field::effective_torque_f(input::n_cells,
+							  macrospin::mx, macrospin::my, macrospin::mz,
+							  field::Bx_eff, field::By_eff, field::Bz_eff,
+							  field::torque_x, field::torque_y, field::torque_z,
+							  field::torque_mod);
 
-	//std::cout<<"Bz_ani:"<<Bz_ani<<"| Bz_app"<<" "<<Bz_app<<"|Bz_lon: "<<Bz_lon<<"\n";
+	
 
 	return 0;
 }

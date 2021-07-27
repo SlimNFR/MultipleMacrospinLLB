@@ -14,9 +14,6 @@ timescale_laser_dynamics 1e-15
 TOL_LD 1e-4
 T_pulse 600.0
 pulse_duration 10000
-mx0 1.0
-my0 0.0
-mz0 0.0
 m_vs_T_curve 0
 chipar_vs_T_curve 0
 K_vs_T_curve 0

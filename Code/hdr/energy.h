@@ -5,7 +5,7 @@
 #define ENERGY_H
 
 //---Standard libraries
-
+#include<vector>
 
 //---User-defined libraries
 
@@ -19,14 +19,18 @@ extern double uniax_anis;
 extern double zeeman;
 
 //---Functions
-double uniax_anis_f(double mx, double my, double mz,
-				    double ex, double ey, double ez,
-				    double K,double V);
+double uniax_anis_f(int n_cells,
+					std::vector<double> K, std::vector<double> V,
+                    std::vector<double> mx, std::vector<double> my, std::vector<double> mz,
+                    std::vector<double> ex, std::vector<double> ey, std::vector<double> ez,
+                    std::vector<int> mat_id);
 
 
-double zeeman_f(double mx, double my, double mz,
-			    double bx, double by, double bz,
-			    double B, double Ms, double V);
+double zeeman_f(int n_cells,
+                 double B, double bx, double by, double bz,
+                 std::vector<double> Ms, std::vector<double> V,
+                 std::vector<double> mx, std::vector<double> my, std::vector<double> mz,
+                 std::vector<double> mat_id);
 
 }
 

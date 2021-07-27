@@ -1,0 +1,17 @@
+n_materials 2
+length_materials 20e-9 3e-9
+width_materials 0.5e-9 1e-9
+height_materials 0.5e-9 1e-9
+unit_cell_size 0.5e-9 1e-9
+Num_atoms_per_unit_cell 1
+Tc 631 700
+Ms0_CGS 500 600
+K0_CGS 5.3e4 6e4
+lambda 0.1 0.2
+eps 1.0 1.0
+ex 0.0 0.0
+ey 0.0 0.0
+ez 1.0 0.0
+mx0 1.0 0.0
+my0 0.0 0.0
+mz0 0.0 1.0

@@ -5,7 +5,7 @@
 #define FIELD_H
 
 //---Standard libraries
-
+#include<vector>
 
 //---User-defined libraries
 
@@ -15,36 +15,44 @@
 namespace field{
 	
 //---Variables
-extern double Bx_ani, By_ani, Bz_ani;
-extern double Bx_app, By_app, Bz_app;
-extern double Bx_lon, By_lon, Bz_lon;
-extern double Bx_eff, By_eff, Bz_eff;
+extern std::vector<double> Bx_app, By_app, Bz_app;
+extern std::vector<double> Bx_ani, By_ani, Bz_ani;
+extern std::vector<double> Bx_lon, By_lon, Bz_lon;
+extern std::vector<double> Bx_eff, By_eff, Bz_eff;
 
-extern double torque_x, torque_y, torque_z, torque_mod;
+extern std::vector<double> torque_x, torque_y, torque_z, torque_mod;
 
 //---Functions
-int uniax_anis_f(double mx, double my, double mz,
-			     double ex, double ey, double ez,
-				 double K, double Ms,
-				 double &Bx_ani, double &By_ani, double &Bz_ani);
+int uniax_anis_f(int n_cells,
+				 std::vector<double>K, std::vector<double>Ms,
+				 std::vector<double>ex, std::vector<double> ey, std::vector<double> ez,
+				 std::vector<double>mx, std::vector<double> my, std::vector<double> mz,
+				 std::vector<double>&Bx_ani, std::vector<double> &By_ani, std::vector<double> &Bz_ani,
+				 std::vector<int>mat_id);
 				
 
-int zeeman_f(double B_app, double bx, double by, double bz,
-		     double &Bx_app, double &By_app, double &Bz_app);
+int zeeman_f(int n_cells,
+			 double B_app, double bx, double by, double bz,
+			 std::vector<double> &Bx_app, std::vector<double> &By_app, std::vector<double> &Bz_app);
 
 
-int longitudinal_f(double mx, double my, double mz,
-				   double chi_par, double m_e,
-				   double &Bx_lon, double &By_lon, double &Bz_lon);
+int longitudinal_f(int n_cells,
+				   std::vector<double> chi_par, std::vector<double> m_e,
+				   std::vector<double> mx, std::vector<double> my, std::vector<double> mz,
+				   std::vector<double> &Bx_lon, std::vector<double> &By_lon, std::vector<double> &Bz_lon,
+				   std::vector<int>mat_id);
 
-int effective_f(double Bx_ani, double By_ani, double Bz_ani,
-				double Bx_app, double By_app, double Bz_app,
-				double &Bx_eff, double &By_eff, double &Bz_eff);
+int effective_f(int n_cells,
+				std::vector<double> Bx_ani, std::vector<double> By_ani, std::vector<double> Bz_ani,
+				std::vector<double> Bx_app, std::vector<double> By_app, std::vector<double> Bz_app,
+				std::vector<double> Bx_lon, std::vector<double> By_lon, std::vector<double> Bz_lon,
+				std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff);
 
-int effective_torque(double mx, double my, double mz,
- 					 double Bx_eff, double By_eff, double Bz_eff,
-					 double &torque_x, double &torque_y, double &torque_z, double  &torque_mod);
-
+int effective_torque_f(int n_cells,
+					   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+					   std::vector<double> Bx_eff, std::vector<double> By_eff, std::vector<double> Bz_eff,
+					   std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
+					   std::vector<double>  &torque_mod);
 int calculate();
 
 
