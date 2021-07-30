@@ -7,6 +7,7 @@
 //---Standard libraries
 #include<fstream>
 #include<iostream>
+#include<vector>
 
 //---User-defined libraries
 
@@ -16,14 +17,14 @@
 namespace output{
 	
 //---Variables
-extern std::ofstream file_Meq_temp_NR;//NR=Newton-Raphson
-extern std::ofstream file_Meq_temp_CS;//CS=cubicspline
-extern std::ofstream file_X_temp;//X=susceptibility
-extern std::ofstream file_K_temp;
-extern std::ofstream file_M_time;
+extern std::vector<std::ofstream> files_Meq_temp_NR;//NR=Newton-Raphson
+extern std::vector<std::ofstream> files_Meq_temp_CS;//CS=cubicspline
+extern std::vector<std::ofstream> files_X_temp;//X=susceptibility
+extern std::vector<std::ofstream> files_K_temp;
+extern std::ofstream file_mx_my_mz_time;
 //---Functions
-int open_files_to_write();
-int close_files();
+int open_files_to_write(int n_materials);
+int close_files(int n_materials);
 
 }
 

@@ -13,8 +13,13 @@
 namespace cubicspline{
 	
 //---Variables
-std::vector<double>x_interpol,y_interpol;
-std::vector<double>b,c,d;
+//These matrices will contain n x m lines and columns where n is the number of materials and m can vary
+std::vector<std::vector<double>>x_interpol,y_interpol;
+std::vector<std::vector<double>>b,c,d;
+
+//These vectors will be used to hold 1D data which will be introduced row by row in the matrices above
+std::vector<double>x_temp, y_temp;
+std::vector<double>b_temp,c_temp,d_temp;
 
 
 //---Functions
@@ -44,7 +49,7 @@ int get_xinterval_id(std::vector<double>x_arr, double x, int &id)
 }
 
 
-int interpolate(int n, std::vector<double> x,std::vector<double> a,
+int interpolate(int n,std::vector<double> x,std::vector<double> a,
                 std::vector<double> &b, std::vector<double> &c, std::vector<double> &d)
 {	//This function interpolates the given x and a set of points using the Cubic Spline method
     //Array named a is y which in turn represents f evaluated at x!

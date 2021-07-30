@@ -7,7 +7,6 @@
 
 //---User-defined libraries
 #include"solver.h"
-#include"field.h"
 //---Namespace solver
 
 namespace solver{

@@ -15,7 +15,8 @@
 namespace macrospin{
     
 //---Variables
-extern std::vector<double>mx, my, mz;
+extern std::vector<double>mx_0,my_0,mz_0;
+extern std::vector<double>mx,my,mz;
 
 
 //---Functions
@@ -47,6 +48,21 @@ void generate_f(int n_materials,
 
 
 
+}
+
+
+namespace macrospin{
+
+
+    namespace  internal{
+
+
+        int alloc_memory(int n_cells);
+        int set_initial_config(int n_cells,
+                           std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
+                           std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
+                           std::vector<int>material_id);
+    }
 }
 
 #endif

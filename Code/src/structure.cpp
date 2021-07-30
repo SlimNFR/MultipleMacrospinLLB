@@ -6,15 +6,15 @@
 #include<iostream>
 //---User-defined libraries
 #include"structure.h"
-#include"input.h"
+
 //---Namespace macrospin
 
 namespace macrospin{
 	
 //---Variables
-std::vector<double>mx(input::n_cells);
-std::vector<double>my(input::n_cells);
-std::vector<double>mz(input::n_cells);
+std::vector<double>mx_0,my_0,mz_0;
+std::vector<double>mx,my,mz;
+
 
 //---Functions
 int update_magnetisation(double mx_in,double my_in, double mz_in,
@@ -77,7 +77,7 @@ void generate_f(int n_materials,
        z[count_cell] = idz+base; 
        
        mat_id[count_cell] = mat;
-       std::cout<<x[count_cell]<<" "<<y[count_cell]<<" "<<z[count_cell]<<" "<<mat_id[count_cell]<<"\n";
+       std::cout<<"Cell:"<<count_cell<<" Xcoord:"<<x[count_cell]<<" Ycoord:"<<y[count_cell]<<" Zcoord:"<<z[count_cell]<<" Material ID:"<<mat_id[count_cell]<<"\n";
 
        
        count_cell++;
@@ -88,6 +88,50 @@ void generate_f(int n_materials,
     base += nz[mat];
   }  
 }
+}
+
+namespace macrospin{
+
+
+  namespace internal{
+
+    int alloc_memory(int n_cells)
+    {
+
+
+      macrospin::mx_0.resize(n_cells);
+      macrospin::my_0.resize(n_cells);
+      macrospin::mz_0.resize(n_cells);
+
+      macrospin::mx.resize(n_cells);
+      macrospin::my.resize(n_cells);
+      macrospin::mz.resize(n_cells);
+
+      return 0;
+    }
+
+
+    int set_initial_config(int n_cells,
+                           std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
+                           std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
+                           std::vector<int>material_id)
+    { //This function sets the initial configuration of the spin vectors mx0_out my0_out mz0_out from the macrospin file
+      //using the mx_0 my_0 mz_0 vectors  from the input file
+
+      int mat;
+      for(int cell=0; cell<n_cells; cell++)
+      {
+        mat=material_id[cell];
+        mx0_out[cell]=mx0_in[cell];
+        my0_out[cell]=my0_in[cell];
+        mz0_out[cell]=mz0_in[cell];
+      }
+
+      return 0;
+
+    }
+
+  }
 }
 
 //---End of structure.cpp file.

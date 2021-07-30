@@ -25,13 +25,13 @@ double zeeman=0.0;
                      std::vector<double> ex, std::vector<double> ey, std::vector<double> ez,
                      std::vector<int> mat_id)
  {
-    int id; //stores the material id of the cell
+    int mat; //stores the material id of the cell
     double uniax_energy = 0.0; // this will be returned at the end
 
-    for(int i=0; i<n_cells; i++)
+    for(int cell=0; cell<n_cells; cell++)
     {//loop cells
-        id=mat_id[i];
-        uniax_energy -= K[id]*V[id]*pow((mx[i]*ex[id] + my[i]*ey[id] + mz[i]*ez[id]),2.0);
+        mat=mat_id[cell];
+        uniax_energy -= K[mat]*V[mat]*pow((mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat]),2.0); //E_ani : [J]
 
     }
     
@@ -45,14 +45,14 @@ double zeeman=0.0;
                  std::vector<double> mx, std::vector<double> my, std::vector<double> mz,
                  std::vector<double> mat_id)
  {
-   int id; //stores the material id of the cell
+   int mat; //stores the material id of the cell
    double zeeman_energy = 0.0;//this will be returned at the end
 
-   for(int i=0; i<n_cells; i++)
+   for(int cell=0; cell<n_cells; cell++)
    {
 
-      id=mat_id[i];
-      zeeman_energy-= V[id]*Ms[id]*B*(mx[i]*bx + my[i]*by + mz[i]*bz);
+      mat=mat_id[cell];
+      zeeman_energy-= V[mat]*Ms[mat]*B*(mx[cell]*bx + my[cell]*by + mz[cell]*bz); //E_zeeman : [J]
 
    }
 

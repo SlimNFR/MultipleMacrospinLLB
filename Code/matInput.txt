@@ -1,9 +1,9 @@
 n_materials 1
-lengthscale 1e-10
-length_materials 200
-width_materials 5
-height_materials 5
-unit_cell_size 5
+lengthscale 1e-11
+length_materials 35
+width_materials 35
+height_materials 35
+unit_cell_size 35
 Num_atoms_per_unit_cell 1
 Tc 631
 Ms0_CGS 500

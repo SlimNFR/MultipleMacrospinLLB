@@ -56,6 +56,18 @@ int effective_torque_f(int n_cells,
 int calculate();
 
 
+
+}
+
+namespace field{
+
+	namespace internal{
+
+		int alloc_memory(int n_cells);
+
+
+	}
+
 }
 
 #endif

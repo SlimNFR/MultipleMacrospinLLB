@@ -20,9 +20,9 @@ extern std::chrono::high_resolution_clock::time_point RUN_TIME_END;
 extern double RUN_TIME_TOTAL;
 
 //---Functions
-int parameters();
-int files();
-int sim();
+int parameters(int &n_materials);
+int files(int &n_materials);
+int sim(int &n_materials);
 
 }
 

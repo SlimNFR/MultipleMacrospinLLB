@@ -36,10 +36,12 @@ int uniax_anis_f(int n_cells,
 	for(int cell=0; cell<n_cells; cell++)
 	{	
 		mat = mat_id[cell];//Get the material id of the spin
-
-		Bx_ani[cell] = 2.0*K[mat]/Ms[mat]*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ex[mat];	//B_ani : [T]
-		By_ani[cell] = 2.0*K[mat]/Ms[mat]*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ey[mat];
-		Bz_ani[cell] = 2.0*K[mat]/Ms[mat]*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ez[mat];
+		double Hk = 2.0*K[mat]/Ms[mat];
+		Bx_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ex[mat];	//B_ani : [T]
+		By_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ey[mat];
+		Bz_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ez[mat];
+		//std::cout<<"Hk: "<<Hk<<" Ms:"<<Ms[mat]<<"K: "<<K[mat]<<"\n";
+		//std::cout<<"Bx_ani: "<<Bx_ani[cell]<<"By_ani: "<<By_ani[cell]<<"Bz_ani: "<<Bz_ani[cell]<<"\n";
 	}
 
 	return 0;
@@ -57,6 +59,8 @@ int zeeman_f(int n_cells,
 		Bx_app[cell]=B_app*bx; //B_app: [T]
 		By_app[cell]=B_app*by;
 		Bz_app[cell]=B_app*bz;
+
+		//std::cout<<"Bx_app: "<<Bx_app[cell]<<"By_app: "<<By_app[cell]<<"Bz_app: "<<Bz_app[cell]<<"\n";
 
 	}
 	return 0;
@@ -90,6 +94,8 @@ int longitudinal_f(int n_cells,
 		Bx_lon[cell] = pre_factor*mx[cell]; //B_lon: [T]
 		By_lon[cell] = pre_factor*my[cell];
 		Bz_lon[cell] = pre_factor*mz[cell];
+
+		//std::cout<<"Bx_lon: "<<Bx_lon[cell]<<"By_lon: "<<By_lon[cell]<<"Bz_lon: "<<Bz_lon[cell]<<"\n";
 	}
 
 	return 0;
@@ -117,11 +123,11 @@ int effective_f(int n_cells,
 
 }
 
-int effective_torque(int n_cells,
-					 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
-					 std::vector<double> Bx_eff, std::vector<double> By_eff, std::vector<double> Bz_eff,
-					 std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
-					 std::vector<double>  &torque_mod)
+int effective_torque_f(int n_cells,
+					   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+					   std::vector<double> Bx_eff, std::vector<double> By_eff, std::vector<double> Bz_eff,
+					   std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
+					   std::vector<double>  &torque_mod)
 {
 
 	for(int cell=0; cell<n_cells; cell++)
@@ -144,7 +150,7 @@ int effective_torque(int n_cells,
 int calculate()
 {
 	field::uniax_anis_f(input::n_cells,
-						input::K0_SI, input::Ms0_SI,
+						input::K_T, input::Ms_T,
 						input::ex, input::ey, input::ez,
 						macrospin::mx, macrospin::my, macrospin::mz,
 						field::Bx_ani, field::By_ani, field::Bz_ani,
@@ -177,6 +183,39 @@ int calculate()
 	return 0;
 }
 
+
+}
+
+namespace field{
+
+
+	namespace internal{
+
+
+		int alloc_memory(int n_cells)
+		{ //This function allocates memory for the
+
+			field::Bx_app.resize(n_cells);
+			field::By_app.resize(n_cells);
+			field::Bz_app.resize(n_cells);
+			field::Bx_ani.resize(n_cells);
+			field::By_ani.resize(n_cells);
+			field::Bz_ani.resize(n_cells);
+			field::Bx_lon.resize(n_cells);
+			field::By_lon.resize(n_cells);
+			field::Bz_lon.resize(n_cells);
+			field::Bx_eff.resize(n_cells);
+			field::By_eff.resize(n_cells);
+			field::Bz_eff.resize(n_cells);
+			field::torque_x.resize(n_cells);
+			field::torque_y.resize(n_cells);
+			field::torque_z.resize(n_cells);
+			field::torque_mod.resize(n_cells);
+			
+
+			return 0;
+		}
+	}
 }
 
 

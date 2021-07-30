@@ -11,7 +11,6 @@
 #include"interpolate.h"
 #include"equation.h"
 #include"input.h"
-#include"output.h"
 
 //---Namespace tempscaling
 
@@ -22,29 +21,31 @@ namespace tempscaling{
 
 //---Functions
 
-int alpha_par_f(double T, double Tc, double lambda,double &alpha_par)
-{	//calculates alpha_par at given temperature T
+int alpha_par_f(double T, double Tc, double lambda, double &alpha_par)
+{	//calculates alpha_par at given temperature T for given material
+		alpha_par = (2.0/3.0)*(T/Tc)*lambda;
 
-	alpha_par = (2.0/3.0)*(T/Tc)*lambda;
 	return 0;
 
 }
+
 int alpha_perp_f(double T, double Tc, double lambda, double &alpha_perp)
-{	//calculates alpha_perp at given temperature T
-	
-	alpha_perp = lambda*(1-(T/(3*Tc)));
+{	//calculates alpha_perp at given temperature T for given material	
+		alpha_perp = lambda*(1-(T/(3*Tc)));
 	return 0;
 }
 
 
 int equilibrium_magn_f(double T, std::vector<double> x_interpol, std::vector<double> y_interpol,
 					   std::vector<double> b,std::vector<double> c,std::vector<double> d, double &m_e)
-{	//calculates the equilibrium magnetisation for a given temperature T
+{	//calculates the equilibrium magnetisation for a given temperature T for a given material
 
 	int id;
 
-	cubicspline::get_xinterval_id(x_interpol, T, id);
-	m_e=cubicspline::polynome(y_interpol[id],b[id],c[id],d[id],T,x_interpol[id]);
+		cubicspline::get_xinterval_id(x_interpol, T, id);
+		m_e=cubicspline::polynome(y_interpol[id],b[id],c[id],d[id],T,x_interpol[id]);
+
+	
 	return 0;
 }
 
@@ -52,50 +53,63 @@ int equilibrium_magn_f(double T, std::vector<double> x_interpol, std::vector<dou
 
 
 int chi_par_f(double (*dLangevin)(double, double, double, double),
-			  double T, double Tc, double mu_s, double m_e, double eps, double &chi_par)
-{	//calculates the parallel susceptibility for a given temperature T
+			  double T,  double Tc, double mu_s, double m_e, double eps, double &chi_par)
+{	//calculates the parallel susceptibility for a given temperature T for a given material
 
 	double kb=input::k_B;
-	double dL=dLangevin(T, Tc, eps,m_e);
-	if(T==0)return 0;
-	chi_par = (mu_s/kb)*(dL/(T-3*(Tc/eps)*dL));
+	double dL;
 
+	if(T==0){chi_par = 0.0; return 0;}
+
+		if(T==Tc) //if T==Tc calculate for Tc-1
+		{	
+			double T_temp = T-1.0;
+			dL=dLangevin(T_temp, Tc, eps,m_e);
+			chi_par = (mu_s/kb)*(dL/(T_temp-3*(Tc/eps)*dL));
+		}
+		
+		else{
+
+			dL=dLangevin(T, Tc, eps,m_e);
+			chi_par = (mu_s/kb)*(dL/(T-3*(Tc/eps)*dL));
+
+		}
 	return 0;
 }
 
 int K_at_T_f(double K0_SI, double m_e, double &K_T)
-{
-
-	K_T = K0_SI * pow(m_e,3.0);
+{	//Calculate anisotropy constant at given T temperature
+		K_T = K0_SI * pow(m_e,3.0);
 
 	return 0;
 }
 
 
-int Ms_at_T_f(double Ms0_SI, double m_e, double &Ms_T)
-{
-
-	Ms_T = Ms0_SI*m_e;
-
+int Ms_at_T_f(double Ms0_SI, double m_e, double  &Ms_T)
+{	//Calculate Saturation Magn. at given T temperature
+		Ms_T = Ms0_SI*m_e;	
 	return 0;
 }
 
 
 int K_vs_T_curve_f(double Tc, double K0_SI,
 				   std::vector<double> x_interpol, std::vector<double>y_interpol,
-				   std::vector<double> b, std::vector<double> c, std::vector<double> d,std::ofstream &f1)
-{
+				   std::vector<double> b, std::vector<double> c, std::vector<double> d, std::ofstream &f1)
+{	//Calculate K(T) curve
 	int T;
-	double m_e;
 	double K_T;
-
+	double m_e;
+	
 	for(T=0; T<=Tc; T++)
-	{
+	{	
 		tempscaling::equilibrium_magn_f((double)T, x_interpol,y_interpol,b,c,d,m_e);
 		tempscaling::K_at_T_f(K0_SI, m_e, K_T);
 		f1<<T<<" "<<K_T/K0_SI<<"\n";
 
 	}
+
+	
+	
 	return 0;
 }
 
@@ -152,7 +166,8 @@ int m_vs_T_curve_f(double Tc,
 
 
 
-int get_mVsT_points_to_interpol(double Tc, double eps, std::vector<double> &x_interpol, std::vector<double> &y_interpol)
+int get_mVsT_points_to_interpol(double Tc, double eps,
+								std::vector<double> &x_interpol, std::vector<double> &y_interpol)
 {	//This function will obtain several m_e(T) points solving the Curie Weiss equation with the NR algorithm. 
 	//These will later be interpolated.
 
@@ -165,45 +180,46 @@ int get_mVsT_points_to_interpol(double Tc, double eps, std::vector<double> &x_in
 	int discrete_step_T=1;
 	int nearTc=50;
 
+	
+		//For my given temperature range, call the NR algorithm and solve the Curie-Weiss equation.
+		for(T=0;T<=Tc;T++)
+		{
+		        if(T==0 || T==Tc)
+		        {//The NR algorithm will not work for T=0 or T=Tc.
 
-	//For my given temperature range, call the NR algorithm and solve the Curie-Weiss equation.
-	for(T=0;T<=Tc;T++)
-	{
-	        if(T==0 || T==Tc)
-	        {//The NR algorithm will not work for T=0 or T=Tc.
+		                x_interpol.push_back(T);
+		                if(T==0){m_e=1.0; y_interpol.push_back(m_e);}
+		                if(T==Tc){m_e=0.0; y_interpol.push_back(m_e);}
+		        }
 
-	                x_interpol.push_back(T);
-	                if(T==0){m_e=1.0; y_interpol.push_back(m_e);}
-	                if(T==Tc){m_e=0.0; y_interpol.push_back(m_e);}
-	        }
+		    else
+		    {
+		            if(T<=Tc-nearTc && T%broad_step_T == 0){
 
-	    else
-	    {
-	            if(T<=Tc-nearTc && T%broad_step_T == 0){
+		                m_e=rootfind::NewtonRaphson(equation::CurieWeiss_f,equation::CurieWeiss_df,
+		                							rootfind::x0,rootfind::TOL,rootfind::N_iter,eps,T,Tc);
+		                x_interpol.push_back(T);
+		                y_interpol.push_back(m_e);
+		                //std::cout<<"x and y: "<<cubicspline::x_interpol.back()<<" "<<cubicspline::y_interpol.back()<<"\n";
 
-	                m_e=rootfind::NewtonRaphson(equation::CurieWeiss_f,equation::CurieWeiss_df,
-	                							rootfind::x0,rootfind::TOL,rootfind::N_iter,eps,T,Tc);
-	                x_interpol.push_back(T);
-	                y_interpol.push_back(m_e);
-	                //std::cout<<"x and y: "<<cubicspline::x_interpol.back()<<" "<<cubicspline::y_interpol.back()<<"\n";
+		            }
 
-	            }
+		            else if (T>Tc-nearTc && T%discrete_step_T == 0){
+		                m_e=rootfind::NewtonRaphson(equation::CurieWeiss_f,equation::CurieWeiss_df,
+		                							rootfind::x0,rootfind::TOL,rootfind::N_iter,eps,T,Tc);
+		                x_interpol.push_back(T);
+		                y_interpol.push_back(m_e);
+		                //std::cout<<"x and y: "<<cubicspline::x_interpol.back()<<" "<<cubicspline::y_interpol.back()<<"\n";
+		            }
+		        }
 
-	            else if (T>Tc-nearTc && T%discrete_step_T == 0){
-	                m_e=rootfind::NewtonRaphson(equation::CurieWeiss_f,equation::CurieWeiss_df,
-	                							rootfind::x0,rootfind::TOL,rootfind::N_iter,eps,T,Tc);
-	                x_interpol.push_back(T);
-	                y_interpol.push_back(m_e);
-	                //std::cout<<"x and y: "<<cubicspline::x_interpol.back()<<" "<<cubicspline::y_interpol.back()<<"\n";
-	            }
-	        }
-
-	}
+		}
+	
 	return 0;
 }
 
 
-int interpolate_mVsT_points(std::vector<double>x_interpol, std::vector<double>y_interpol,
+int interpolate_mVsT_points(std::vector<double> x_interpol, std::vector<double>y_interpol,
 							std::vector<double> &b, std::vector<double> &c, std::vector<double> &d)
 {
 
@@ -230,55 +246,66 @@ namespace tempscaling{
 	namespace internal{
 
 
-		int obtain_interpolation_polynome_mVsT_data()
+		int obtain_interpolation_polynome_mVsT_data(int material)
 		{   //this function will automatically set up the interpolated m_e(T) data
-			tempscaling::get_mVsT_points_to_interpol(input::Tc, input::eps,
-										 			 cubicspline::x_interpol, cubicspline::y_interpol);
-			tempscaling::interpolate_mVsT_points(cubicspline::x_interpol, cubicspline::y_interpol,
-												 cubicspline::b, cubicspline::c, cubicspline::d);
+			
+				//work with the temporary x,y,b,c,d 1D vectors
+				tempscaling::get_mVsT_points_to_interpol(input::Tc[material], input::eps[material],
+											 			 cubicspline::x_temp, cubicspline::y_temp);
+
+				tempscaling::interpolate_mVsT_points(cubicspline::x_temp, cubicspline::y_temp,
+													 cubicspline::b_temp, cubicspline::c_temp, cubicspline::d_temp);
+				
+				//update the matrices x_interpol y_interpol b c d 
+				cubicspline::x_interpol.push_back(cubicspline::x_temp);
+				cubicspline::y_interpol.push_back(cubicspline::y_temp);
+				cubicspline::b.push_back(cubicspline::b_temp);
+				cubicspline::c.push_back(cubicspline::c_temp);
+				cubicspline::d.push_back(cubicspline::d_temp);
 
 			return 0;
 		}
 
-		int call_mVsT_sim()
+		int call_mVsT_sim(int material, std::ofstream &file_Meq_temp_NR, std::ofstream &file_Meq_temp_CS)
 		{	//this function will run a simulation to obtain the full me_vs(T) curve.
-			tempscaling::m_vs_T_curve_f(input::Tc,  
-										cubicspline::x_interpol, cubicspline::y_interpol,
-										cubicspline::b, cubicspline::c, cubicspline::d,
-										output::file_Meq_temp_NR, output::file_Meq_temp_CS);
+
+			tempscaling::m_vs_T_curve_f(input::Tc[material],  
+										cubicspline::x_interpol[material], cubicspline::y_interpol[material],
+										cubicspline::b[material], cubicspline::c[material], cubicspline::d[material],
+										file_Meq_temp_NR, file_Meq_temp_CS);
 			return 0;
 		}
 
-		int call_chiparVsT_sim()
+		int call_chiparVsT_sim(int material, std::ofstream &file_X_temp)
 		{	//this function will run a simulation to obtain the full me_vs(T) curve.
-			tempscaling::chipar_vs_T_curve_f(input::Tc, input::eps,input::mu_s,
-											 cubicspline::x_interpol, cubicspline::y_interpol,
-											 cubicspline::b,cubicspline::c, cubicspline::d, output::file_X_temp);
+			tempscaling::chipar_vs_T_curve_f(input::Tc[material], input::eps[material],input::mu_s[material],
+											 cubicspline::x_interpol[material], cubicspline::y_interpol[material],
+											 cubicspline::b[material],cubicspline::c[material], cubicspline::d[material], file_X_temp);
 			return 0;
 		}
 
-		int call_KVsT_sim()
+		int call_KVsT_sim(int material, std::ofstream &file_K_temp)
 		{
 
 
-			tempscaling::K_vs_T_curve_f(input::Tc, input::K0_SI, 
-										cubicspline::x_interpol, cubicspline::y_interpol,
-										cubicspline::b, cubicspline::c, cubicspline::d, output::file_K_temp);
+			tempscaling::K_vs_T_curve_f(input::Tc[material], input::K0_SI[material], 
+										cubicspline::x_interpol[material], cubicspline::y_interpol[material],
+										cubicspline::b[material], cubicspline::c[material], cubicspline::d[material], file_K_temp);
 
 			return 0;
 
 		}
 
 
-		int calc_parameters_at_T()
+		int calc_parameters_at_T(int material)
 		{
-			tempscaling::alpha_par_f(input::T, input::Tc, input::lambda, input::alpha_par);
-			tempscaling::alpha_perp_f(input::T, input::Tc, input::lambda, input::alpha_perp);
-			tempscaling::equilibrium_magn_f(input::T, cubicspline::x_interpol, cubicspline::y_interpol,
-											cubicspline::b, cubicspline::c, cubicspline::d, input::m_e);
-			tempscaling::chi_par_f(equation::Langevin_df, input::T, input::Tc, input::mu_s, input::m_e, input::eps, input::chi_par);
-			tempscaling::Ms_at_T_f(input::Ms0_SI, input::m_e, input::Ms_T);
-			tempscaling::K_at_T_f(input::K0_SI, input::m_e, input::K_T);
+			tempscaling::alpha_par_f(input::T, input::Tc[material], input::lambda[material], input::alpha_par[material]);
+			tempscaling::alpha_perp_f(input::T, input::Tc[material], input::lambda[material], input::alpha_perp[material]);
+			tempscaling::equilibrium_magn_f(input::T, cubicspline::x_interpol[material], cubicspline::y_interpol[material],
+											cubicspline::b[material], cubicspline::c[material], cubicspline::d[material], input::m_e[material]);
+			tempscaling::chi_par_f(equation::Langevin_df, input::T, input::Tc[material], input::mu_s[material], input::m_e[material], input::eps[material], input::chi_par[material]);
+			tempscaling::Ms_at_T_f(input::Ms0_SI[material], input::m_e[material], input::Ms_T[material]);
+			tempscaling::K_at_T_f(input::K0_SI[material], input::m_e[material], input::K_T[material]);
 			
 			return 0;
 

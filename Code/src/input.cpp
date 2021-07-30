@@ -51,6 +51,10 @@ std::vector<double>eps; //SW correction factor: adim.
 std::vector<double>ex; // H_ani_x
 std::vector<double>ey; // H_ani_y
 std::vector<double>ez; // H_ani_z
+//---Initial conditions
+std::vector<double>mx_0;
+std::vector<double>my_0;
+std::vector<double>mz_0;
 
 // //---Simulation paramters
 double T; // Magnetic moment temperature (electron temperature in this model): [K]
@@ -78,10 +82,7 @@ double TOL_LD;
 double T_pulse;
 int pulse_duration; //fs !!Important, this needs to be in the same time unit as the timescale_laser_dynamics variable
 
-//---Initial conditions
-std::vector<double>mx_0;
-std::vector<double>my_0;
-std::vector<double>mz_0;
+
 
 //---Simulation
 
@@ -129,6 +130,10 @@ if(!inFile)
 	std::cout<<"Applied field X coordinate [adim.]:"<<" "<<input::bx<<"\n";
 	std::cout<<"Applied field Y coordinate [adim.]:"<<" "<<input::by<<"\n";
 	std::cout<<"Applied field Z coordinate [adim.]:"<<" "<<input::bz<<"\n";
+
+    input::alpha_par.resize(n_materials);
+    input::alpha_perp.resize(n_materials);
+
   	inFile >> s1>> input::t_min_equil;
     std::cout <<"Initial equilibration time start [adim.]:"<< " " << input::t_min_equil << "\t "<< std::endl;
     inFile >> s1>> input::t_max_equil;
@@ -253,7 +258,14 @@ if(!inFile)
         input::n_cells += input::material_total_cells[i]; 
 
     }
-    ;
+    
+    std::cout<<"\n";
+
+    std::cout<<"Unitcell volume [m3]:"<<" ";
+    for (int i = 0; i < input::n_materials; i++)
+    {
+        std::cout<<input::unitcell_volume[i]<<" ";
+    }
     std::cout<<"\n";
     
     std::cout<<"Total number of cells [adim.]:"<<input::n_cells<<"\n";
@@ -345,6 +357,9 @@ if(!inFile)
     }
     std::cout<<"\n";
 
+    input::m_e.resize(n_materials);
+    input::Ms_T.resize(n_materials);
+    input::K_T.resize(n_materials);
 
     input::mu_s.resize(n_materials);
     std::cout<<"Atomic magnetic moment [J/T]:"<<" ";
@@ -364,6 +379,10 @@ if(!inFile)
         std::cout<< input::lambda[i] << " ";
     }
     std::cout<<"\n";  
+
+
+    input::chi_par.resize(n_materials);
+    input::chi_perp.resize(n_materials);
 
     inFile >> s1;
     input::eps.resize(n_materials);

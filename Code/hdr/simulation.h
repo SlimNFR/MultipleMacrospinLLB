@@ -6,7 +6,7 @@
 
 //---Standard libraries
 #include<fstream>
-
+#include<vector>
 //---User-defined libraries
 
 
@@ -21,16 +21,26 @@ extern double equil_sim_time; //This holds the total simulatino time of the equi
 extern double total_sim_time; //Equilibration time plus laser induced dynamics
 
 //---Functions
-int squared_pulse_dynamics(double mx_0, double my_0, double mz_0,
-					   	   double &mx_n1, double &my_n1, double &mz_n1,
+int squared_pulse_dynamics(int n_cells,
+						   double gamma, std::vector<double> &alpha_par, std::vector<double>&alpha_perp,
+						   std::vector<double> mx_0, std::vector<double> my_0, std::vector<double> mz_0,
+						   std::vector<double> &mx_n1, std::vector<double> &my_n1, std::vector<double> &mz_n1,
+						   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff,
+						   std::vector<double> &torque_mod,
+						   std::vector<int> material_id,
 					   	   double &LD_REAL_t, double EQ_REAL_t,
 					   	   double &T, double TOL,
 					   	   int t_start, int t_end, int t_step, double timescale,
 					   	   int pulse_duration, double T_pulse,
 					   	   std::ofstream &f1);
 
-int equilibrate_system(double mx_0, double my_0, double mz_0,
-					   double &mx_n1, double &my_n1, double &mz_n1,
+int equilibrate_system(int n_cells,
+					   double gamma, std::vector<double> &alpha_par, std::vector<double>&alpha_perp,
+					   std::vector<double> mx_0, std::vector<double> my_0, std::vector<double> mz_0,
+					   std::vector<double> &mx_n1, std::vector<double> &my_n1, std::vector<double> &mz_n1,
+					   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff,
+					   std::vector<double> &torque_mod,
+					   std::vector<int> material_id,
 					   double &EQ_REAL_t, double T, double TOL,
 					   int t_start, int t_end, int t_step, double timescale,
 					   std::ofstream &f1);
