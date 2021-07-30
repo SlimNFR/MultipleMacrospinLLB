@@ -122,9 +122,11 @@ namespace macrospin{
       for(int cell=0; cell<n_cells; cell++)
       {
         mat=material_id[cell];
-        mx0_out[cell]=mx0_in[cell];
-        my0_out[cell]=my0_in[cell];
-        mz0_out[cell]=mz0_in[cell];
+        mx0_out[cell]=mx0_in[mat];
+        my0_out[cell]=my0_in[mat];
+        mz0_out[cell]=mz0_in[mat];
+
+        std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
       }
 
       return 0;

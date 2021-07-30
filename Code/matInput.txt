@@ -1,6 +1,6 @@
 n_materials 1
 lengthscale 1e-11
-length_materials 35
+length_materials 70
 width_materials 35
 height_materials 35
 unit_cell_size 35
