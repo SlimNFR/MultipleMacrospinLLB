@@ -68,7 +68,7 @@ int zeeman_f(int n_cells,
 }
 
 int exchange_f(int n_cells, double lengthscale,
-			   std::vector<double> m_e, std::vector<double> Ms, std::vector<int> macrocell_size, std::vector<std::vector<double>>A_T_matrix,
+			   std::vector<double> m_e, std::vector<double> Ms0_SI, std::vector<int> macrocell_size, std::vector<std::vector<double>>A_T_matrix,
 			   std::vector<int> int_list, std::vector<int> start_neighbours, std::vector<int> end_neighbours,
 			   std::vector<int> material_id,
 			   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
@@ -78,7 +78,7 @@ int exchange_f(int n_cells, double lengthscale,
 	for(int cell=0; cell<n_cells; cell++) //Loop each cell
 	{
 		int mat_id_cell=material_id[cell]; //Get material id of cell
-		double pre_factor = (pow(m_e[mat_id_cell],2.0)*Ms[mat_id_cell]*pow(macrocell_size[mat_id_cell]*lengthscale, 2.0));
+		double pre_factor = (pow(m_e[mat_id_cell],2.0)*Ms0_SI[mat_id_cell]*pow(macrocell_size[mat_id_cell]*lengthscale, 2.0));
 		for(int count_neighbour=start_neighbours[cell]; count_neighbour<end_neighbours[cell]; count_neighbour++) //Count all cell's neighbours
 		{
 			int neighbour = int_list[count_neighbour]; //Get neighbour from interaction list
@@ -197,7 +197,7 @@ int calculate()
 					field::Bx_app, field::By_app, field::Bz_app);
 
 	field::exchange_f(input::n_cells,input::lengthscale,
-					  input::m_e, input::Ms_T, input::unitcell_size, input::A_T_matrix,
+					  input::m_e, input::Ms0_SI, input::unitcell_size, input::A_T_matrix,
 					  material::interaction_list, material::start_neighbours, material::end_neighbours, material::id, 
 					  macrospin::mx, macrospin::my, macrospin::mz,
 					  field::Bx_exc, field::By_exc, field::Bz_exc);
