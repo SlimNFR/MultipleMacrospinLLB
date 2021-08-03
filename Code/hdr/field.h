@@ -17,6 +17,7 @@ namespace field{
 //---Variables
 extern std::vector<double> Bx_app, By_app, Bz_app;
 extern std::vector<double> Bx_ani, By_ani, Bz_ani;
+extern std::vector<double> Bx_exc, By_exc, Bz_exc;
 extern std::vector<double> Bx_lon, By_lon, Bz_lon;
 extern std::vector<double> Bx_eff, By_eff, Bz_eff;
 
@@ -35,6 +36,13 @@ int zeeman_f(int n_cells,
 			 double B_app, double bx, double by, double bz,
 			 std::vector<double> &Bx_app, std::vector<double> &By_app, std::vector<double> &Bz_app);
 
+int exchange_f(int n_cells, double lengthscale,
+			   std::vector<double> m_e, std::vector<double> Ms, std::vector<int> macrocell_size, std::vector<std::vector<double>>A_T_matrix,
+			   std::vector<int> int_list, std::vector<int> start_neighbours, std::vector<int> end_neighbours,
+			   std::vector<int> material_id,
+			   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+			   std::vector<double> &Bx_exc, std::vector<double> &By_exc, std::vector<double> &Bz_exc);
+
 
 int longitudinal_f(int n_cells,
 				   std::vector<double> chi_par, std::vector<double> m_e,
@@ -45,6 +53,7 @@ int longitudinal_f(int n_cells,
 int effective_f(int n_cells,
 				std::vector<double> Bx_ani, std::vector<double> By_ani, std::vector<double> Bz_ani,
 				std::vector<double> Bx_app, std::vector<double> By_app, std::vector<double> Bz_app,
+				std::vector<double> Bx_exc, std::vector<double> By_exc, std::vector<double> Bz_exc,
 				std::vector<double> Bx_lon, std::vector<double> By_lon, std::vector<double> Bz_lon,
 				std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff);
 

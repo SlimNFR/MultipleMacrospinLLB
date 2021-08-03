@@ -29,10 +29,11 @@ extern double lengthscale;
 extern std::vector<int>length;
 extern std::vector<int>width;
 extern std::vector<int>height;
-extern std::vector<int>unitcell_size;
-extern std::vector<double> unitcell_volume;
+extern std::vector<int>unitcell_size; 
+extern std::vector<double>unitcell_volume;
+extern std::vector<int>macrocell_size; 
+extern std::vector<double>macrocell_volume;
 extern std::vector<int>material_total_cells; 
-
 extern std::vector<int>nx_cells;
 extern std::vector<int>ny_cells;
 extern std::vector<int>nz_cells;
@@ -44,6 +45,9 @@ extern std::vector<double> Ms0_CGS;
 extern std::vector<double> K0_CGS;
 extern std::vector<double> Ms0_SI;
 extern std::vector<double> K0_SI;
+extern std::vector<double> A0_list; 
+extern std::vector<std::vector<double>> A0_matrix;
+extern std::vector<std::vector<double>> A_T_matrix;
 extern std::vector<double> m_e;
 extern std::vector<double> Ms_T;
 extern std::vector<double> K_T;
@@ -93,6 +97,7 @@ extern std::vector<double>mz_0;
 extern bool m_vs_T_curve;
 extern bool chipar_vs_T_curve;
 extern bool K_vs_T_curve;
+extern bool A_vs_T_curve;
 extern bool equilibrate;
 extern bool laser_dynamics;
 
@@ -101,6 +106,9 @@ extern bool laser_dynamics;
 
 int read_simulation_parameters();
 int read_material_parameters();
+int generate_exchange_matrix(int n_materials,
+                              std::vector<double>A0_list,
+                              std::vector<std::vector<double> >&A0_matrix);
 
 }
 

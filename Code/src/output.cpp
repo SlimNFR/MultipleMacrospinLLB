@@ -19,6 +19,7 @@ std::vector<std::ofstream> files_Meq_temp_NR;//NR=Newton-Raphson
 std::vector<std::ofstream> files_Meq_temp_CS;//CS=cubicspline
 std::vector<std::ofstream> files_X_temp;//X=susceptibility
 std::vector<std::ofstream> files_K_temp;
+std::vector<std::ofstream> files_A_temp;
 std::ofstream file_mx_my_mz_time;
 
 //---Functions
@@ -68,6 +69,18 @@ int open_files_to_write(int n_materials)
 		
 	}
 
+	if(input::A_vs_T_curve == true)
+	{
+		for(int material=0; material<n_materials; material++)
+		{
+			s1=std::to_string(material);
+			std::ofstream tempA("output_A_temp_mat"+s1+".txt");
+			output::files_A_temp.push_back(std::move(tempA));
+			//output::files_K_temp[material].open("output_K_temp"+s1+".txt", std::ofstream::out);	
+		}
+		
+	}
+
 	if(input::equilibrate == true || input::laser_dynamics == true )
 	{
 
@@ -104,6 +117,14 @@ int close_files(int n_materials)
 		for(int material=0; material<n_materials; material++)
 		{
 			output::files_K_temp[material].close();	
+		}
+	}
+
+	if(input::A_vs_T_curve == true)
+	{
+		for(int material=0; material<n_materials; material++)
+		{
+			output::files_A_temp[material].close();	
 		}
 	}
 

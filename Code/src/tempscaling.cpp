@@ -92,6 +92,33 @@ int Ms_at_T_f(double Ms0_SI, double m_e, double  &Ms_T)
 }
 
 
+int A_at_T_f(double A0, double m_e, double &A_T)
+{	//This function calculates the exchange stiffness at a given temperature T
+	
+	A_T = A0 * pow(m_e,2.0);
+	return 0;
+}
+
+int Amatrix_at_T_f(int n_materials,
+				   std::vector<double> m_e,
+				   std::vector<std::vector<double>>A0_matrix,
+				   std::vector<std::vector<double>>&A_T_matrix)
+{	//This function calculates the exchange stiffness matrix at a given temperature T
+	for(int i=0;i<n_materials;i++)
+	{
+		for(int j=0;j<n_materials;j++)
+		{
+
+			if(i!=j){tempscaling::A_at_T_f(A0_matrix[i][j], sqrt(m_e[i]*m_e[j]), A_T_matrix[i][j]);} //if Materials are different, exchange will scale with the sqrt(m1m2)^2 magnetisation
+																									 //This rule can be changed whenever
+			if(i==j){tempscaling::A_at_T_f(A0_matrix[i][j], m_e[j], A_T_matrix[i][j]);} //intralayer exchange scales with me^2
+		}
+	}
+
+	return 0;
+}
+
+
 int K_vs_T_curve_f(double Tc, double K0_SI,
 				   std::vector<double> x_interpol, std::vector<double>y_interpol,
 				   std::vector<double> b, std::vector<double> c, std::vector<double> d, std::ofstream &f1)
@@ -162,6 +189,26 @@ int m_vs_T_curve_f(double Tc,
 	return 0;
 }
 
+
+int A_vs_T_curve_f(double Tc, double A0,
+				   std::vector<double> x_interpol, std::vector<double>y_interpol,
+				   std::vector<double> b, std::vector<double> c, std::vector<double> d, std::ofstream &f1)
+{	//This function calculates the A vs T curve for a given material 
+	int T;
+	double A_T;
+	double m_e;
+
+	for(T=0; T<=Tc; T++)
+	{	
+		tempscaling::equilibrium_magn_f((double)T, x_interpol,y_interpol,b,c,d,m_e);
+		tempscaling::A_at_T_f(A0, m_e, A_T);
+		f1<<T<<" "<<A_T/A0<<"\n";
+
+	}
+
+
+	return 0;
+}
 
 
 
@@ -296,6 +343,18 @@ namespace tempscaling{
 
 		}
 
+		int call_AvsT_sim(int material, std::ofstream &file_A_temp)
+		{
+
+
+			tempscaling::A_vs_T_curve_f(input::Tc[material], input::A0_matrix[material][material],
+										cubicspline::x_interpol[material], cubicspline::y_interpol[material],
+										cubicspline::b[material], cubicspline::c[material], cubicspline::d[material],
+										file_A_temp);
+
+			return 0;
+		}
+
 
 		int calc_parameters_at_T(int material)
 		{
@@ -306,6 +365,12 @@ namespace tempscaling{
 			tempscaling::chi_par_f(equation::Langevin_df, input::T, input::Tc[material], input::mu_s[material], input::m_e[material], input::eps[material], input::chi_par[material]);
 			tempscaling::Ms_at_T_f(input::Ms0_SI[material], input::m_e[material], input::Ms_T[material]);
 			tempscaling::K_at_T_f(input::K0_SI[material], input::m_e[material], input::K_T[material]);
+
+			if(material==input::n_materials-1)//if this is the last material in the system calculate the exchange matrix as well
+			{
+				tempscaling::Amatrix_at_T_f(input::n_materials, input::m_e, input::A0_matrix, input::A_T_matrix);	
+			}
+			
 			
 			return 0;
 

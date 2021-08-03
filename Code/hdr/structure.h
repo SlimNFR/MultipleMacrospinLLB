@@ -34,16 +34,28 @@ extern std::vector<double> ycoord;
 extern std::vector<double> zcoord;
 extern std::vector<int> id;
 
+extern std::vector<int> interaction_list;
+extern std::vector<int> start_neighbours;
+extern std::vector<int> end_neighbours;
+
 
 
 //---Functions
 
+int create_interaction_list(int n_cells,
+                            std::vector<double> xcoord,
+                            std::vector<double> ycoord,
+                            std::vector<double> zcoord,
+                            std::vector<int> &int_list,
+                            std::vector<int> &start,
+                            std::vector<int> &end);
 
-void generate_f(int n_materials,
-                int n_cells,
-                std::vector<int>nx, std::vector<int>ny, std::vector<int>nz,
-                std::vector<int> &mat_id,
-                std::vector<double> &x, std::vector<double> &y, std::vector<double> &z);
+
+int generate_crystal_structure_f(int n_materials,
+                                 int n_cells,
+                                 std::vector<int>nx, std::vector<int>ny, std::vector<int>nz,
+                                 std::vector<int> &mat_id,
+                                 std::vector<double> &x, std::vector<double> &y, std::vector<double> &z);
 
 
 

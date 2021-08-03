@@ -38,13 +38,63 @@ std::vector<double> ycoord;
 std::vector<double> zcoord;
 std::vector<int> id;
 
+
+std::vector<int> interaction_list;
+std::vector<int> start_neighbours;
+std::vector<int> end_neighbours;
+
+
 //---Functions
 
-void generate_f(int n_materials,
-                int n_cells,
-                std::vector<int>nx, std::vector<int>ny, std::vector<int>nz,
-                std::vector<int> &mat_id,
-                std::vector<double> &x, std::vector<double> &y, std::vector<double> &z)
+int create_interaction_list(int n_cells,
+                            std::vector<double> xcoord,
+                            std::vector<double> ycoord,
+                            std::vector<double> zcoord,
+                            std::vector<int> &int_list,
+                            std::vector<int> &start,
+                            std::vector<int> &end)
+{ //This function creates the interaction list.
+  //The start and end vectors will help me find the neighbours of each macrospin cell in the interaction list.
+  start.resize(n_cells);
+  end.resize(n_cells);
+
+  double r0=1.0;//range of interactions. This is currently equal to 1,meaning only nearest neighbours are counted. 
+                //Atomic positions are incremented using a step of 1 in vectors xcoord, ycood, zcoord
+  const double rtoll=r0*1.0e-5; //range tolerance
+
+  for(int i=0; i<n_cells; i++) //For each macrospin cell
+  {
+   int count_interactions=0; //Set an interactions counter for each new macrospin cell
+   for(int j=0; j<n_cells; j++) //Loop all the other cells
+    {
+      if(i==j)continue;//exclude self interactions
+      else
+      {
+      //compute the distance between macrocells
+      double rij=sqrt( pow((xcoord[i]-xcoord[j]),2.0) +
+                       pow((ycoord[i]-ycoord[j]),2.0) +
+                       pow((zcoord[i]-zcoord[j]),2.0) );
+      if(rij-r0<rtoll)//if the distance agrees with the interaction range..
+      {
+       count_interactions++; //Count it 
+       int_list.push_back(j);//Update interaction list with neighbour id
+       int index_j=std::distance(int_list.begin(),int_list.end());
+       end[i]=index_j;//Update end list
+      }
+      }
+    }
+    start[i]=end[i]-count_interactions; //Update start list
+ }
+
+
+  return 0;
+}
+
+int generate_crystal_structure_f(int n_materials,
+                                 int n_cells,
+                                 std::vector<int>nx, std::vector<int>ny, std::vector<int>nz,
+                                 std::vector<int> &mat_id,
+                                 std::vector<double> &x, std::vector<double> &y, std::vector<double> &z)
 {//This function will assign real coordinates and a material id to each of the macrospins in my system.
 
   //I'll assume in terms of widths and length the materials are the same!
@@ -77,7 +127,7 @@ void generate_f(int n_materials,
        z[count_cell] = idz+base; 
        
        mat_id[count_cell] = mat;
-       std::cout<<"Cell:"<<count_cell<<" Xcoord:"<<x[count_cell]<<" Ycoord:"<<y[count_cell]<<" Zcoord:"<<z[count_cell]<<" Material ID:"<<mat_id[count_cell]<<"\n";
+       //std::cout<<"Cell:"<<count_cell<<" Xcoord:"<<x[count_cell]<<" Ycoord:"<<y[count_cell]<<" Zcoord:"<<z[count_cell]<<" Material ID:"<<mat_id[count_cell]<<"\n";
 
        
        count_cell++;
@@ -86,7 +136,8 @@ void generate_f(int n_materials,
      }
     }
     base += nz[mat];
-  }  
+  }
+  return 0;  
 }
 }
 
@@ -126,7 +177,7 @@ namespace macrospin{
         my0_out[cell]=my0_in[mat];
         mz0_out[cell]=mz0_in[mat];
 
-        std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
+        //std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
       }
 
       return 0;

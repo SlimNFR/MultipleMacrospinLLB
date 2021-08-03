@@ -28,9 +28,41 @@ int parameters(int &n_materials)
 
 	input::read_material_parameters();
 	input::read_simulation_parameters();
-	material::generate_f(input::n_materials,
-						 input::n_cells, input::nx_cells, input::ny_cells, input::nz_cells,
-						 material::id, material::xcoord, material::ycoord, material::zcoord);
+	material::generate_crystal_structure_f(input::n_materials,
+						 				   input::n_cells, input::nx_cells, input::ny_cells, input::nz_cells,
+						 				   material::id, material::xcoord, material::ycoord, material::zcoord);
+	material::create_interaction_list(input::n_cells, material::xcoord, material::ycoord, material::zcoord,
+									  material::interaction_list, material::start_neighbours, material::end_neighbours);
+
+	/*
+	std::cout<<"Start neighbours:"<<" ";
+	for(int i=0;i<input::n_cells; i++)
+	{
+
+		std::cout<<material::start_neighbours[i]<<" ";
+	}		
+	std::cout<<"\n";
+	*/
+	
+	/*
+	std::cout<<"End neighbours:"<<" ";
+	for(int i=0;i<input::n_cells; i++)
+	{
+
+		std::cout<<material::end_neighbours[i]<<" ";
+	}		
+	std::cout<<"\n";
+	*/
+	/*
+	std::cout<<"Interaction list "<<" ";
+	for(int i=0;i<material::interaction_list.size(); i++)
+	{
+
+		std::cout<<material::interaction_list[i]<<" ";
+	}		
+	std::cout<<"\n";
+	*/
+
 	macrospin::internal::alloc_memory(input::n_cells);
 	macrospin::internal::set_initial_config(input::n_cells,
                           		    		input::mx_0, input::my_0, input::mz_0,
@@ -81,6 +113,14 @@ int sim(int &n_materials)
 		for(int material=0; material<n_materials; material++)
 		{
 			tempscaling::internal::call_KVsT_sim(material, output::files_K_temp[material]);
+		}
+	}
+
+	if(input::A_vs_T_curve==true)
+	{
+		for(int material=0; material<n_materials; material++)
+		{
+			tempscaling::internal::call_AvsT_sim(material, output::files_A_temp[material]);
 		}
 	}
 

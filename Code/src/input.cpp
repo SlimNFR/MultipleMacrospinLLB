@@ -26,8 +26,10 @@ double lengthscale; //The lengthscale can be nm, microns, mm and so on..
 std::vector<int>length; //Material lengths
 std::vector<int>width; //Material widths
 std::vector<int>height; //Material heights
-std::vector<int>unitcell_size; //Assuming a cubic cell type, this sets the "a" dimension of the cell.
-std::vector<double>unitcell_volume; // Macrospin volume: [m^3]
+std::vector<int>unitcell_size; //This sets the a dimension of the unitcell
+std::vector<double>unitcell_volume; //This sets the volume of the unitcell
+std::vector<int>macrocell_size; //Assuming a cubic cell type, this sets the "a" dimension of the macrocell
+std::vector<double>macrocell_volume; // Macrocell volume: [m^3]
 std::vector<int>material_total_cells; //number of total cells per material
 std::vector<int>nx_cells; //Total cells on x per material
 std::vector<int>ny_cells; //Total cells on y per material
@@ -40,6 +42,9 @@ std::vector<double>Ms0_CGS; // Saturation magnetisation: [emu/cc]
 std::vector<double>K0_CGS; // Magnetocrystlline first-order anis. constant: [erg/cc]
 std::vector<double>Ms0_SI; //Saturation magnetisation: [A/m]
 std::vector<double>K0_SI; //: Magnetocrystlline first-order anis. constant: [J/m^3]
+std::vector<double> A0_list; //0K Exchange stiffness list [J/m]
+std::vector<std::vector<double>> A0_matrix;//0K Exchange stiffness matrix [J/m]
+std::vector<std::vector<double>> A_T_matrix;//Temperature dependent exchange stiffness matrix [J/m]
 std::vector<double>m_e; //Equilibrium magnetisation: []
 std::vector<double>Ms_T; //Saturation magnetisation at T
 std::vector<double>K_T; //Magnetocrystalline anisotropy constant at T
@@ -89,6 +94,7 @@ int pulse_duration; //fs !!Important, this needs to be in the same time unit as 
 bool m_vs_T_curve;
 bool chipar_vs_T_curve;
 bool K_vs_T_curve;
+bool A_vs_T_curve;
 bool equilibrate;
 bool laser_dynamics;
 
@@ -166,6 +172,8 @@ if(!inFile)
     std::cout <<"XparT_curve [bool]:"<<"\t" << input::chipar_vs_T_curve << "\t"<< std::endl;
     inFile >> s1>> input::K_vs_T_curve;
     std::cout <<"KT_curve [bool]:"<<"\t" << input::K_vs_T_curve << "\t"<< std::endl;
+    inFile >> s1>> input::A_vs_T_curve;
+    std::cout <<"AT_curve [bool]:"<<"\t" << input::A_vs_T_curve << "\t"<< std::endl;
     inFile >> s1>> input::equilibrate;
     std::cout <<"Initial equilibration [bool]:"<<"\t" << input::equilibrate << "\t"<< std::endl;
     inFile >> s1>> input::laser_dynamics;
@@ -232,11 +240,15 @@ if(!inFile)
     inFile>>s1;
     input::unitcell_size.resize(n_materials);
     input::unitcell_volume.resize(n_materials);
+    input::macrocell_size.resize(n_materials);
+    input::macrocell_volume.resize(n_materials);
     input::material_total_cells.resize(n_materials);
     input::nx_cells.resize(n_materials);
     input::ny_cells.resize(n_materials);
     input::nz_cells.resize(n_materials);
     input::n_cells = 0;
+
+
     std::cout<<"Unitcell size/a dimension [m]:"<<" ";
     for (int i = 0; i <input::n_materials;i++)
     {
@@ -244,21 +256,10 @@ if(!inFile)
         std::cout<<(double)input::unitcell_size[i]*input::lengthscale<<" ";
 
 
-        //At the same time, I can calculate the unitcell volume for each material and the number of total cells in each material
+        //At the same time, I can calculate the unitcellvolume
         input::unitcell_volume[i]=pow(input::unitcell_size[i]*input::lengthscale,3.0);
-        input::material_total_cells[i]=(input::length[i]*input::width[i]*input::height[i])/pow(input::unitcell_size[i],3.0);
-
-        //I also calculate the total cells on x,y,z per material
-
-        input::nx_cells[i]= input::length[i]/input::unitcell_size[i];
-        input::ny_cells[i]= input::width[i]/input::unitcell_size[i];
-        input::nz_cells[i]= input::height[i]/input::unitcell_size[i];
-
-        //The total number of cells in the sytem
-        input::n_cells += input::material_total_cells[i]; 
-
+        
     }
-    
     std::cout<<"\n";
 
     std::cout<<"Unitcell volume [m3]:"<<" ";
@@ -267,6 +268,40 @@ if(!inFile)
         std::cout<<input::unitcell_volume[i]<<" ";
     }
     std::cout<<"\n";
+
+    inFile>>s1;
+    std::cout<<"Macrocell size/a dimension [m]:"<<" ";
+    for (int i = 0; i <input::n_materials;i++)
+    {
+        inFile>>input::macrocell_size[i];
+        std::cout<<(double)input::macrocell_size[i]*input::lengthscale<<" ";
+
+
+        //At the same time, I can calculate the macrocell volume for each material and the number of total cells in each material
+       input::macrocell_volume[i]=pow(input::macrocell_size[i]*input::lengthscale,3.0);
+       input::material_total_cells[i]=(input::length[i]*input::width[i]*input::height[i])/pow(input::macrocell_size[i],3.0);
+
+        //I also calculate the total cells on x,y,z per material
+
+        input::nx_cells[i]= input::length[i]/input::macrocell_size[i];
+        input::ny_cells[i]= input::width[i]/input::macrocell_size[i];
+        input::nz_cells[i]= input::height[i]/input::macrocell_size[i];
+
+        //The total number of cells in the sytem
+        input::n_cells += input::material_total_cells[i]; 
+
+    }
+    
+    std::cout<<"\n";
+
+
+    std::cout<<"Macrocell volume [m3]:"<<" ";
+    for (int i = 0; i < input::n_materials; i++)
+    {
+        std::cout<<input::macrocell_volume[i]<<" ";
+    }
+    std::cout<<"\n";
+
     
     std::cout<<"Total number of cells [adim.]:"<<input::n_cells<<"\n";
 
@@ -354,6 +389,34 @@ if(!inFile)
     {
         input::K0_SI[i] = input::K0_CGS[i]*1e-1;
         std::cout<< input::K0_SI[i] << " ";
+    }
+    std::cout<<"\n";
+
+    inFile>>s1;
+    input::A0_list.resize(2*n_materials-1);
+    std::cout<<"Exchange stiffness list [J/m]:"<<" ";
+    for(int i=0; i<2*n_materials-1; i++)
+    {
+        inFile>>input::A0_list[i];
+        std::cout<<input::A0_list[i]<<" ";
+
+    }
+    std::cout<<"\n";
+
+    input::generate_exchange_matrix(input::n_materials,
+                                    input::A0_list,
+                                    input::A0_matrix);
+
+    input::A_T_matrix.resize(n_materials, std::vector<double>(n_materials));
+
+    std::cout<<"Exchange stiffness matrix [J/m]:"<<"\n";
+    for(int i=0; i<n_materials; i++)
+    {
+        for (int j=0; j<n_materials;j++)
+        {
+            std::cout<<A0_matrix[i][j]<<" ";
+        }
+        std::cout<<"\n";
     }
     std::cout<<"\n";
 
@@ -459,6 +522,33 @@ if(!inFile)
     return 0;
 
 }	
+
+
+
+ int generate_exchange_matrix(int n_materials,
+                              std::vector<double>A0_list,
+                              std::vector<std::vector<double> >&A0_matrix)
+ {// This function generates the exchange stiffness matrix from the exchange stiffness list given as input
+  A0_matrix.resize(n_materials, std::vector<double>(n_materials));
+
+  for(int i=0;i<n_materials;i++) //Loop each material
+  {
+   for(int j=0;j<n_materials;j++) //For every other material
+   {
+    if(abs(j-i)>1.5)//This determines whether the two materials interact
+    {//Currently, only two succesive materials interact. 
+     A0_matrix[i][j]=0.0;
+     continue;
+    }
+    else
+    {
+     A0_matrix[i][j] = A0_list[i+j];
+    }
+   }
+  }
+
+  return 0;
+ }
     
 
 }
