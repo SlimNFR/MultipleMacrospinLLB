@@ -26,17 +26,17 @@ const double k_B = 1.381*1e-23; // Boltzmann constant [J/K]
 //---Material parameters
 extern int n_materials;
 extern double lengthscale;
-extern std::vector<int>length;
-extern std::vector<int>width;
-extern std::vector<int>height;
-extern std::vector<int>unitcell_size; 
+extern std::vector<unsigned long long int>length;
+extern std::vector<unsigned long long int>width;
+extern std::vector<unsigned long long int>height;
+extern std::vector<unsigned long long int>unitcell_size; 
 extern std::vector<double>unitcell_volume;
-extern std::vector<int>macrocell_size; 
+extern std::vector<unsigned long long int>macrocell_size; 
 extern std::vector<double>macrocell_volume;
-extern std::vector<int>material_total_cells; 
-extern std::vector<int>nx_cells;
-extern std::vector<int>ny_cells;
-extern std::vector<int>nz_cells;
+extern std::vector<unsigned long long int>material_total_cells; 
+extern std::vector<unsigned long long int>nx_cells;
+extern std::vector<unsigned long long int>ny_cells;
+extern std::vector<unsigned long long int>nz_cells;
 extern int n_cells;
 extern int n_at;
 
@@ -100,6 +100,7 @@ extern bool K_vs_T_curve;
 extern bool A_vs_T_curve;
 extern bool equilibrate;
 extern bool laser_dynamics;
+extern bool force_DW_formation;
 
 
 //---Functions

@@ -23,17 +23,17 @@ namespace input{
 // //---Material parameters
 int n_materials; //No. of materials in my system
 double lengthscale; //The lengthscale can be nm, microns, mm and so on..
-std::vector<int>length; //Material lengths
-std::vector<int>width; //Material widths
-std::vector<int>height; //Material heights
-std::vector<int>unitcell_size; //This sets the a dimension of the unitcell
+std::vector<unsigned long long int>length; //Material lengths
+std::vector<unsigned long long int>width; //Material widths
+std::vector<unsigned long long int>height; //Material heights
+std::vector<unsigned long long int>unitcell_size; //This sets the a dimension of the unitcell
 std::vector<double>unitcell_volume; //This sets the volume of the unitcell
-std::vector<int>macrocell_size; //Assuming a cubic cell type, this sets the "a" dimension of the macrocell
+std::vector<unsigned long long int>macrocell_size; //Assuming a cubic cell type, this sets the "a" dimension of the macrocell
 std::vector<double>macrocell_volume; // Macrocell volume: [m^3]
-std::vector<int>material_total_cells; //number of total cells per material
-std::vector<int>nx_cells; //Total cells on x per material
-std::vector<int>ny_cells; //Total cells on y per material
-std::vector<int>nz_cells; //Total cells on z per material
+std::vector<unsigned long long int>material_total_cells; //number of total cells per material
+std::vector<unsigned long long int>nx_cells; //Total cells on x per material
+std::vector<unsigned long long int>ny_cells; //Total cells on y per material
+std::vector<unsigned long long int>nz_cells; //Total cells on z per material
 int n_cells; //Total number of cells in the structure
 int n_at; //Number of atoms per unit cell: adim.
 
@@ -97,6 +97,7 @@ bool K_vs_T_curve;
 bool A_vs_T_curve;
 bool equilibrate;
 bool laser_dynamics;
+bool force_DW_formation;
 
 
 //---Functions
@@ -178,6 +179,9 @@ if(!inFile)
     std::cout <<"Initial equilibration [bool]:"<<"\t" << input::equilibrate << "\t"<< std::endl;
     inFile >> s1>> input::laser_dynamics;
     std::cout <<"Laser dynamics [bool]:"<<"\t" << input::laser_dynamics << "\t"<< std::endl;
+    inFile >> s1>> input::force_DW_formation;
+    std::cout <<"Force DW formation [bool]:"<<"\t" <<input::force_DW_formation<< "\t"<< std::endl;
+
 
     std::cout<<std::endl;
     return 0;
@@ -238,14 +242,14 @@ if(!inFile)
     std::cout<<"\n";
 
     inFile>>s1;
-    input::unitcell_size.resize(n_materials);
-    input::unitcell_volume.resize(n_materials);
-    input::macrocell_size.resize(n_materials);
-    input::macrocell_volume.resize(n_materials);
-    input::material_total_cells.resize(n_materials);
-    input::nx_cells.resize(n_materials);
-    input::ny_cells.resize(n_materials);
-    input::nz_cells.resize(n_materials);
+    input::unitcell_size.resize(n_materials,0);
+    input::unitcell_volume.resize(n_materials,0);
+    input::macrocell_size.resize(n_materials,0);
+    input::macrocell_volume.resize(n_materials,0);
+    input::material_total_cells.resize(n_materials,0);
+    input::nx_cells.resize(n_materials,0);
+    input::ny_cells.resize(n_materials,0);
+    input::nz_cells.resize(n_materials,0);
     input::n_cells = 0;
 
 
@@ -279,7 +283,11 @@ if(!inFile)
 
         //At the same time, I can calculate the macrocell volume for each material and the number of total cells in each material
        input::macrocell_volume[i]=pow(input::macrocell_size[i]*input::lengthscale,3.0);
-       input::material_total_cells[i]=(input::length[i]*input::width[i]*input::height[i])/pow(input::macrocell_size[i],3.0);
+       input::material_total_cells[i]=(input::length[i]*input::width[i]*input::height[i])/(input::macrocell_size[i]*input::macrocell_size[i]*input::macrocell_size[i]);
+       std::cout<<"MATERIAL_TOTAL_CELLS: "<<input::material_total_cells[i]<<" |LENGTH: "<<input::length[i]<<" |WIDTH: "<<input::width[i]
+                <<" |HEIGHT: "<<input::height[i]<<" |MACROCELL_SIZE:"<<input::macrocell_size[i]<<"\n";
+        std::cout<<"TOTAL VOLUME: "<<input::length[i]*input::width[i]*input::height[i]<<"\n";
+        std::cout<<"macrocell VOLUME: "<<input::macrocell_size[i]*input::macrocell_size[i]*input::macrocell_size[i]<<"\n";
 
         //I also calculate the total cells on x,y,z per material
 
@@ -289,6 +297,7 @@ if(!inFile)
 
         //The total number of cells in the sytem
         input::n_cells += input::material_total_cells[i]; 
+        std::cout<<"N_CELLS: "<<n_cells<<"\n";
 
     }
     

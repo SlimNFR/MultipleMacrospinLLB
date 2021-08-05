@@ -37,7 +37,7 @@ int zeeman_f(int n_cells,
 			 std::vector<double> &Bx_app, std::vector<double> &By_app, std::vector<double> &Bz_app);
 
 int exchange_f(int n_cells, double lengthscale,
-			   std::vector<double> m_e, std::vector<double> Ms0_SI, std::vector<int> macrocell_size, std::vector<std::vector<double>>A_T_matrix,
+			   std::vector<double> m_e, std::vector<double> Ms0_SI, std::vector<unsigned long long int> macrocell_size, std::vector<std::vector<double>>A_T_matrix,
 			   std::vector<int> int_list, std::vector<int> start_neighbours, std::vector<int> end_neighbours,
 			   std::vector<int> material_id,
 			   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,

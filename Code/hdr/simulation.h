@@ -21,6 +21,9 @@ extern double equil_sim_time; //This holds the total simulatino time of the equi
 extern double total_sim_time; //Equilibration time plus laser induced dynamics
 
 //---Functions
+int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::vector<double> &my, std::vector<double> &mz,
+						 std::vector<int>material_id);
+
 int squared_pulse_dynamics(int n_cells,
 						   double gamma, std::vector<double> &alpha_par, std::vector<double>&alpha_perp,
 						   std::vector<double> mx_0, std::vector<double> my_0, std::vector<double> mz_0,

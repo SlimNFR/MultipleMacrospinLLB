@@ -34,6 +34,7 @@ int parameters(int &n_materials)
 	material::create_interaction_list(input::n_cells, material::xcoord, material::ycoord, material::zcoord,
 									  material::interaction_list, material::start_neighbours, material::end_neighbours);
 
+	
 	/*
 	std::cout<<"Start neighbours:"<<" ";
 	for(int i=0;i<input::n_cells; i++)
@@ -42,9 +43,9 @@ int parameters(int &n_materials)
 		std::cout<<material::start_neighbours[i]<<" ";
 	}		
 	std::cout<<"\n";
-	*/
 	
-	/*
+	
+	
 	std::cout<<"End neighbours:"<<" ";
 	for(int i=0;i<input::n_cells; i++)
 	{
@@ -52,8 +53,8 @@ int parameters(int &n_materials)
 		std::cout<<material::end_neighbours[i]<<" ";
 	}		
 	std::cout<<"\n";
-	*/
-	/*
+	
+	
 	std::cout<<"Interaction list "<<" ";
 	for(int i=0;i<material::interaction_list.size(); i++)
 	{

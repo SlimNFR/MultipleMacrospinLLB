@@ -92,7 +92,7 @@ int create_interaction_list(int n_cells,
 
 int generate_crystal_structure_f(int n_materials,
                                  int n_cells,
-                                 std::vector<int>nx, std::vector<int>ny, std::vector<int>nz,
+                                 std::vector<unsigned long long int>nx, std::vector<unsigned long long int>ny, std::vector<unsigned long long int>nz,
                                  std::vector<int> &mat_id,
                                  std::vector<double> &x, std::vector<double> &y, std::vector<double> &z)
 {//This function will assign real coordinates and a material id to each of the macrospins in my system.
