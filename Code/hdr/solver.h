@@ -18,10 +18,12 @@ namespace solver{
 extern int sim_time;
 
 //---Functions
-int heun_scheme_step(int (*dfunc)(double, double, double,
+int heun_scheme_step(int (*dfunc)(bool,
+					 double, double, double,
 					 double, double, double ,
 					 double, double, double,
 					 double &,double &,double &),
+					 bool remove_precession_term,
 					 double mx_0,double my_0, double mz_0,
 					 double gamma, double alpha_par, double alpha_perp,
 					 int delta_t, double timescale,

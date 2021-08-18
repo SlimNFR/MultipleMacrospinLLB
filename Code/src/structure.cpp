@@ -4,6 +4,8 @@
 //---Standard libraries
 #include<vector>
 #include<iostream>
+#include<deque>
+#include<cmath>
 //---User-defined libraries
 #include"structure.h"
 
@@ -43,8 +45,8 @@ std::vector<int> interaction_list;
 std::vector<int> start_neighbours;
 std::vector<int> end_neighbours;
 
-
 //---Functions
+
 
 int create_interaction_list(int n_cells,
                             std::vector<double> xcoord,
@@ -67,6 +69,7 @@ int create_interaction_list(int n_cells,
    int count_interactions=0; //Set an interactions counter for each new macrospin cell
    for(int j=0; j<n_cells; j++) //Loop all the other cells
     {
+      
       if(i==j)continue;//exclude self interactions
       else
       {
@@ -84,7 +87,7 @@ int create_interaction_list(int n_cells,
       }
     }
     start[i]=end[i]-count_interactions; //Update start list
- }
+  }
 
 
   return 0;

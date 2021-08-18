@@ -17,10 +17,12 @@ int sim_time = 0;
 
 //---Functions
 
-int heun_scheme_step(int (*dfunc)(double, double, double,
+int heun_scheme_step(int (*dfunc)(bool,
+					 double, double, double,
 					 double, double, double,
 					 double, double, double,
 					 double &,double &,double &),
+					 bool remove_precession_term,
 					 double mx_0,double my_0, double mz_0,
 					 double gamma, double alpha_par, double alpha_perp,
 					 int delta_t, double timescale, //timescale variable should be intialised to 1ps or 1ns or 1fs depending on the timescale of my sim
@@ -39,8 +41,8 @@ int heun_scheme_step(int (*dfunc)(double, double, double,
 		<<"|mx: "<<mx_n1<<"|my: "<<my_n1<<"|mz: "<<mz_n1<<"\n";
 */		
 		//std::cout<<"|gamma: "<<gamma<<"|alpha_par: "<<alpha_par<<"|alpha_perp: "<<alpha_perp<<"\n";
-		dfunc(mx_0,my_0,mz_0,Bx_eff,By_eff,Bz_eff,gamma,alpha_par,alpha_perp,fx_0,fy_0,fz_0);
-		dfunc(mx_0+REAL_DT*fx_0,my_0+REAL_DT*fy_0,mz_0+REAL_DT*fz_0,Bx_eff,By_eff,Bz_eff,gamma,alpha_par,alpha_perp,fx_n,fy_n,fz_n);
+		dfunc(remove_precession_term,mx_0,my_0,mz_0,Bx_eff,By_eff,Bz_eff,gamma,alpha_par,alpha_perp,fx_0,fy_0,fz_0);
+		dfunc(remove_precession_term,mx_0+REAL_DT*fx_0,my_0+REAL_DT*fy_0,mz_0+REAL_DT*fz_0,Bx_eff,By_eff,Bz_eff,gamma,alpha_par,alpha_perp,fx_n,fy_n,fz_n);
 
 		mx_n1 = mx_0  + (REAL_DT/2.0)*(fx_0 + fx_n);
 		my_n1 = my_0  + (REAL_DT/2.0)*(fy_0 + fy_n);

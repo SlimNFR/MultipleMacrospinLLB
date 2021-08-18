@@ -7,6 +7,7 @@
 //---Standard libraries
 #include<cmath>
 #include<vector>
+#include <deque>
 //---User-defined libraries
 
 
@@ -34,9 +35,12 @@ extern std::vector<double>unitcell_volume;
 extern std::vector<unsigned long long int>macrocell_size; 
 extern std::vector<double>macrocell_volume;
 extern std::vector<unsigned long long int>material_total_cells; 
-extern std::vector<unsigned long long int>nx_cells;
-extern std::vector<unsigned long long int>ny_cells;
-extern std::vector<unsigned long long int>nz_cells;
+extern std::vector<unsigned long long int>material_nx_cells;
+extern std::vector<unsigned long long int>material_ny_cells;
+extern std::vector<unsigned long long int>material_nz_cells;
+extern int nx_cells;
+extern int ny_cells;
+extern int nz_cells;
 extern int n_cells;
 extern int n_at;
 
@@ -101,6 +105,7 @@ extern bool A_vs_T_curve;
 extern bool equilibrate;
 extern bool laser_dynamics;
 extern bool force_DW_formation;
+extern bool remove_precession_term;
 
 
 //---Functions

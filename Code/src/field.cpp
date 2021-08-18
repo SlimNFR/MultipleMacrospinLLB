@@ -67,6 +67,8 @@ int zeeman_f(int n_cells,
 	return 0;
 }
 
+
+
 int exchange_f(int n_cells, double lengthscale,
 			   std::vector<double> m_e, std::vector<double> Ms0_SI, std::vector<unsigned long long int> macrocell_size, std::vector<std::vector<double>>A_T_matrix,
 			   std::vector<int> int_list, std::vector<int> start_neighbours, std::vector<int> end_neighbours,
@@ -87,18 +89,15 @@ int exchange_f(int n_cells, double lengthscale,
 		double pre_factor = (pow(m_e[mat_id_cell],2.0)*Ms0_SI[mat_id_cell]*pow(macrocell_size[mat_id_cell]*lengthscale, 2.0));
 		for(int count_neighbour=start_neighbours[cell]; count_neighbour<end_neighbours[cell]; count_neighbour++) //Count all cell's neighbours
 		{
+
 			neighbour = int_list[count_neighbour]; //Get neighbour from interaction list
 			mat_id_neighbour=material_id[neighbour]; //Get material id of neighbour
 			A = A_T_matrix[mat_id_cell][mat_id_neighbour]; //Get exchange from exchange matrix
-		//	std::cout<<"A: "<<A<<" |prefactor: "<<pre_factor<<"\n";
+
+			//Calculate exchange
 			Bx_exc[cell] += (2.0*A/pre_factor)*(mx[neighbour] - mx[cell]); //  [T]
 			By_exc[cell] += (2.0*A/pre_factor)*(my[neighbour] - my[cell]);
 			Bz_exc[cell] += (2.0*A/pre_factor)*(mz[neighbour] - mz[cell]);
-
-			//std::cout<<"2*A/pre_factor: "<<2.0*A/pre_factor<<"\n";
-			//std::cout<<"mx[neigh]: "<<mx[neighbour]<<" |my[neigh]:"<<my[neighbour]<<" |mz[neigh]"<<mz[neighbour]<<"\n";
-			//std::cout<<"mx[cell]: "<<mx[cell]<<" |my[cell]:"<<my[cell]<<" |mz[cell]"<<mz[cell]<<"\n";
-
 		}
 
 		//std::cout<<"Cell: "<<cell<<" |Bx_exc_cell:"<<Bx_exc[cell]<<" |By__exc_cell:"<<By_exc[cell]<<" |Bz__exc_cell:"<<Bz_exc[cell]<<"\n";
@@ -164,6 +163,7 @@ int effective_f(int n_cells,
 		Bz_eff[cell] = Bz_ani[cell] + Bz_app[cell] + Bz_exc[cell] + Bz_lon[cell];
 	}
 	
+	
 
 	return 0;
 
@@ -208,11 +208,11 @@ int calculate()
 
 	
 	field::exchange_f(input::n_cells,input::lengthscale,
-					  input::m_e, input::Ms0_SI, input::unitcell_size, input::A_T_matrix,
+					  input::m_e, input::Ms0_SI, input::macrocell_size, input::A_T_matrix,
 					  material::interaction_list, material::start_neighbours, material::end_neighbours, material::id, 
 					  macrospin::mx, macrospin::my, macrospin::mz,
 					  field::Bx_exc, field::By_exc, field::Bz_exc);
-	
+
 	field::longitudinal_f(input::n_cells,
 						  input::chi_par, input::m_e,
 						  macrospin::mx, macrospin::my, macrospin::mz,
@@ -231,6 +231,7 @@ int calculate()
 							  field::Bx_eff, field::By_eff, field::Bz_eff,
 							  field::torque_x, field::torque_y, field::torque_z,
 							  field::torque_mod);
+
 
 	
 

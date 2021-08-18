@@ -1,8 +1,6 @@
 output_*
 *.gnu
 Data/*
-InputFiles/*
-GnuplotScripts/*
 *.out
 *.pdf
 *.png

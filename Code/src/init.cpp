@@ -29,8 +29,9 @@ int parameters(int &n_materials)
 	input::read_material_parameters();
 	input::read_simulation_parameters();
 	material::generate_crystal_structure_f(input::n_materials,
-						 				   input::n_cells, input::nx_cells, input::ny_cells, input::nz_cells,
+						 				   input::n_cells, input::material_nx_cells, input::material_ny_cells, input::material_nz_cells,
 						 				   material::id, material::xcoord, material::ycoord, material::zcoord);
+
 	material::create_interaction_list(input::n_cells, material::xcoord, material::ycoord, material::zcoord,
 									  material::interaction_list, material::start_neighbours, material::end_neighbours);
 

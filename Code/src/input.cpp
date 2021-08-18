@@ -6,6 +6,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<deque>
 
 //---User-defined libraries
 #include"input.h"
@@ -31,9 +32,12 @@ std::vector<double>unitcell_volume; //This sets the volume of the unitcell
 std::vector<unsigned long long int>macrocell_size; //Assuming a cubic cell type, this sets the "a" dimension of the macrocell
 std::vector<double>macrocell_volume; // Macrocell volume: [m^3]
 std::vector<unsigned long long int>material_total_cells; //number of total cells per material
-std::vector<unsigned long long int>nx_cells; //Total cells on x per material
-std::vector<unsigned long long int>ny_cells; //Total cells on y per material
-std::vector<unsigned long long int>nz_cells; //Total cells on z per material
+std::vector<unsigned long long int>material_nx_cells; //Total cells on x per material
+std::vector<unsigned long long int>material_ny_cells; //Total cells on y per material
+std::vector<unsigned long long int>material_nz_cells; //Total cells on z per material
+int nx_cells;//Total cells on x
+int ny_cells;//Total cells on y
+int nz_cells;//Total cells on z
 int n_cells; //Total number of cells in the structure
 int n_at; //Number of atoms per unit cell: adim.
 
@@ -98,8 +102,7 @@ bool A_vs_T_curve;
 bool equilibrate;
 bool laser_dynamics;
 bool force_DW_formation;
-
-
+bool remove_precession_term;
 //---Functions
 int read_simulation_parameters()
 {
@@ -181,6 +184,8 @@ if(!inFile)
     std::cout <<"Laser dynamics [bool]:"<<"\t" << input::laser_dynamics << "\t"<< std::endl;
     inFile >> s1>> input::force_DW_formation;
     std::cout <<"Force DW formation [bool]:"<<"\t" <<input::force_DW_formation<< "\t"<< std::endl;
+    inFile >> s1>> input::remove_precession_term;
+    std::cout <<"Remove precession term from LLB [bool]:"<<"\t" <<input::remove_precession_term<< "\t"<< std::endl;
 
 
     std::cout<<std::endl;
@@ -247,10 +252,14 @@ if(!inFile)
     input::macrocell_size.resize(n_materials,0);
     input::macrocell_volume.resize(n_materials,0);
     input::material_total_cells.resize(n_materials,0);
-    input::nx_cells.resize(n_materials,0);
-    input::ny_cells.resize(n_materials,0);
-    input::nz_cells.resize(n_materials,0);
-    input::n_cells = 0;
+    input::material_nx_cells.resize(n_materials,0);
+    input::material_ny_cells.resize(n_materials,0);
+    input::material_nz_cells.resize(n_materials,0);
+    input::nx_cells=0;
+    input::ny_cells=0;
+    input::nz_cells=0;
+    input::n_cells=0;
+
 
 
     std::cout<<"Unitcell size/a dimension [m]:"<<" ";
@@ -291,11 +300,14 @@ if(!inFile)
 
         //I also calculate the total cells on x,y,z per material
 
-        input::nx_cells[i]= input::length[i]/input::macrocell_size[i];
-        input::ny_cells[i]= input::width[i]/input::macrocell_size[i];
-        input::nz_cells[i]= input::height[i]/input::macrocell_size[i];
+        input::material_nx_cells[i]= input::length[i]/input::macrocell_size[i];
+        input::material_ny_cells[i]= input::width[i]/input::macrocell_size[i];
+        input::material_nz_cells[i]= input::height[i]/input::macrocell_size[i];
 
-        //The total number of cells in the sytem
+        //The total number of cells in the system
+        input::nx_cells +=input::material_nx_cells[i];
+        input::ny_cells +=input::material_ny_cells[i];
+        input::nz_cells +=input::material_nz_cells[i];
         input::n_cells += input::material_total_cells[i]; 
         std::cout<<"N_CELLS: "<<n_cells<<"\n";
 
@@ -324,21 +336,21 @@ if(!inFile)
     std::cout<<"No. of cells per material on x [adim.]:"<<" ";
     for (int i = 0; i < input::n_materials; i++)
     {
-        std::cout<<input::nx_cells[i]<<" ";
+        std::cout<<input::material_nx_cells[i]<<" ";
     }
     std::cout<<"\n";
 
     std::cout<<"No. of cells per material on y [adim.]:"<<" ";
     for (int i = 0; i < input::n_materials; i++)
     {
-        std::cout<<input::ny_cells[i]<<" ";
+        std::cout<<input::material_ny_cells[i]<<" ";
     }
     std::cout<<"\n";
 
     std::cout<<"No. of cells per material on z [adim.]:"<<" ";
     for (int i = 0; i < input::n_materials; i++)
     {
-        std::cout<<input::nz_cells[i]<<" ";
+        std::cout<<input::material_nz_cells[i]<<" ";
     }
     std::cout<<"\n";
 

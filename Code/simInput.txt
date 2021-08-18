@@ -3,14 +3,14 @@ B_app 0.0
 B_theta 0.0
 B_phi 0.0
 t_min_equil 0
-t_max_equil 3200000
+t_max_equil 60000000
 delta_t_equil 10
 timescale_equil 1e-16
 TOL_EQ 1e-4
 t_min_laser_dynamics 0
 t_max_laser_dynamics 400000
 delta_t_laser_dynamics 10
-timescale_laser_dynamics 1e-15 
+timescale_laser_dynamics 1e-15
 TOL_LD 1e-4
 T_pulse 600.0
 pulse_duration 10000
@@ -21,3 +21,4 @@ A_vs_T_curve 0
 equilibrate 1
 laser_dynamics 0
 force_DW_formation 1
+remove_precession_term 1

@@ -39,8 +39,8 @@ extern std::vector<int> start_neighbours;
 extern std::vector<int> end_neighbours;
 
 
-
 //---Functions
+
 
 int create_interaction_list(int n_cells,
                             std::vector<double> xcoord,
@@ -64,7 +64,6 @@ int generate_crystal_structure_f(int n_materials,
 
 
 namespace macrospin{
-
 
     namespace  internal{
 
