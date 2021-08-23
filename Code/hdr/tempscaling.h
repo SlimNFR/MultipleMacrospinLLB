@@ -18,7 +18,6 @@ namespace tempscaling{
 	
 //---Variables
 
-
 //---Functions
 //obtain instantaneous parameters
 int alpha_par_f(double T, double Tc, double lambda, double &alpha_par);

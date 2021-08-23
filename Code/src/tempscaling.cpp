@@ -18,11 +18,12 @@ namespace tempscaling{
 	
 //---Variables
 
-
 //---Functions
 
 int alpha_par_f(double T, double Tc, double lambda, double &alpha_par)
 {	//calculates alpha_par at given temperature T for given material
+
+		//both below and above Tc,this formula applies
 		alpha_par = (2.0/3.0)*(T/Tc)*lambda;
 
 	return 0;
@@ -31,7 +32,13 @@ int alpha_par_f(double T, double Tc, double lambda, double &alpha_par)
 
 int alpha_perp_f(double T, double Tc, double lambda, double &alpha_perp)
 {	//calculates alpha_perp at given temperature T for given material	
-		alpha_perp = lambda*(1-(T/(3*Tc)));
+
+		//T>Tc case
+		if(T>Tc)alpha_perp=(2.0/3.0)*(T/Tc)*lambda;
+
+		//T<=Tc case
+		else if(T<Tc)alpha_perp = lambda*(1-(T/(3*Tc)));
+
 	return 0;
 }
 
@@ -61,19 +68,13 @@ int chi_par_f(double (*dLangevin)(double, double, double, double),
 
 	if(T==0){chi_par = 0.0; return 0;}
 
-		if(T==Tc) //if T==Tc calculate for Tc-1
-		{	
-			double T_temp = T-1.0;
-			dL=dLangevin(T_temp, Tc, eps,m_e);
-			chi_par = (mu_s/kb)*(dL/(T_temp-3*(Tc/eps)*dL));
-		}
-		
-		else{
+	if(T==Tc) //if T==Tc calculate for Tc-1
+	{	
+		T = T-1.0;//don't calculate exactly for T=Tc
+	}
 
-			dL=dLangevin(T, Tc, eps,m_e);
-			chi_par = (mu_s/kb)*(dL/(T-3*(Tc/eps)*dL));
-
-		}
+	dL=dLangevin(T, Tc, eps,m_e);
+	chi_par = (mu_s/kb)*(dL/(T-3.0*(Tc/eps)*dL));
 	return 0;
 }
 
@@ -127,7 +128,7 @@ int K_vs_T_curve_f(double Tc, double K0_SI,
 	double K_T;
 	double m_e;
 	
-	for(T=0; T<=Tc; T++)
+	for(T=0; T<=Tc+Tc; T++)
 	{	
 		tempscaling::equilibrium_magn_f((double)T, x_interpol,y_interpol,b,c,d,m_e);
 		tempscaling::K_at_T_f(K0_SI, m_e, K_T);
@@ -152,7 +153,7 @@ int chipar_vs_T_curve_f(double Tc, double eps,
 	double chi_par;
 
 	//Loop temperatures and print to file
-	for(T=0; T<=Tc; T++)
+	for(T=0; T<=Tc+Tc; T++)
 	{
 		tempscaling::equilibrium_magn_f((double)T, x_interpol,y_interpol,b,c,d,m_e);
 		tempscaling::chi_par_f(equation::Langevin_df, T, Tc, mu_s,m_e, eps, chi_par);
@@ -177,7 +178,7 @@ int m_vs_T_curve_f(double Tc,
 	}
 
 	int id; //This will store the interval id of each new x value (temperature value).
-	for (T = 0; T <=Tc; T++)
+	for (T = 0; T <=Tc+Tc; T++)
 	{	
 	    cubicspline::get_xinterval_id(x_interpol, T, id);
 	    //std::cout<<T<<" "<<cubicspline::y_interpol[id]<<" "<<cubicspline::b[id]<<" "<<cubicspline::c[id]<<" "<<cubicspline::d[id]<<"\n";
@@ -198,7 +199,7 @@ int A_vs_T_curve_f(double Tc, double A0,
 	double A_T;
 	double m_e;
 
-	for(T=0; T<=Tc; T++)
+	for(T=0; T<=Tc+Tc; T++)
 	{	
 		tempscaling::equilibrium_magn_f((double)T, x_interpol,y_interpol,b,c,d,m_e);
 		tempscaling::A_at_T_f(A0, m_e, A_T);
@@ -226,17 +227,18 @@ int get_mVsT_points_to_interpol(double Tc, double eps,
 	int broad_step_T=50;
 	int discrete_step_T=1;
 	int nearTc=50;
+	int upperTlimit=Tc+Tc; //This sets the maximum temperature I want to calculate m_e for.
 
 	
 		//For my given temperature range, call the NR algorithm and solve the Curie-Weiss equation.
-		for(T=0;T<=Tc;T++)
+		for(T=0;T<=upperTlimit;T++)
 		{
-		        if(T==0 || T==Tc)
-		        {//The NR algorithm will not work for T=0 or T=Tc.
+		        if(T==0 || T>=Tc)
+		        {//The NR algorithm will not work for T=0 or T>=Tc.
 
 		                x_interpol.push_back(T);
 		                if(T==0){m_e=1.0; y_interpol.push_back(m_e);}
-		                if(T==Tc){m_e=0.0; y_interpol.push_back(m_e);}
+		                if(T>=Tc){m_e=0.0; y_interpol.push_back(m_e);}
 		        }
 
 		    else
@@ -251,14 +253,14 @@ int get_mVsT_points_to_interpol(double Tc, double eps,
 
 		            }
 
-		            else if (T>Tc-nearTc && T%discrete_step_T == 0){
+		            else if (T<Tc && T>Tc-nearTc && T%discrete_step_T == 0){ //added T<Tc to make sure it doesn't interfere with the T>Tc case above
 		                m_e=rootfind::NewtonRaphson(equation::CurieWeiss_f,equation::CurieWeiss_df,
 		                							rootfind::x0,rootfind::TOL,rootfind::N_iter,eps,T,Tc);
 		                x_interpol.push_back(T);
 		                y_interpol.push_back(m_e);
 		                //std::cout<<"x and y: "<<cubicspline::x_interpol.back()<<" "<<cubicspline::y_interpol.back()<<"\n";
 		            }
-		        }
+		    }
 
 		}
 	

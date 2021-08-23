@@ -449,7 +449,7 @@ if(!inFile)
     std::cout<<"Atomic magnetic moment [J/T]:"<<" ";
     for(int i=0; i<input::n_materials; i++)
     {
-        input::mu_s[i] = input::unitcell_volume[i]*input::Ms0_SI[i]/input::n_at;
+        input::mu_s[i] = input::unitcell_volume[i]*input::Ms0_SI[i]/(double)input::n_at;
         std::cout<< input::mu_s[i] << " ";
     }
     std::cout<<"\n";    

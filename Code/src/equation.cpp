@@ -33,7 +33,7 @@ double Langevin_df(double T, double Tc, double eps, double m_e)
 {//The derivative of the Langevin function L(x)=coth(x)-1/x. L'(x)=-1/sinh(x)**2 +1/x**2
     double x ;
     if(T<1e-5)return 0; //if the temperature is close to 0 then the x argument shoots to +inf. limit of L'(x) will go to 0.
-    if(T==Tc)return 1.0/3.0; //if T==Tc then L'(x) is 1/3
+    if(T>=Tc)return 1.0/3.0; //if T>=Tc then L'(x) is 1/3
     else
     {
         x = (3.0/eps)*(Tc/T)*m_e;

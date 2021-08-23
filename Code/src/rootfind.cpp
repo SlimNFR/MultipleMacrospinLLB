@@ -24,7 +24,8 @@ double NewtonRaphson(double (*f)(double, double, double, double),
                                  double T, double Tc)
 {//Root-finding algorithm based on the Newton-Raphson method
  //Algorithm: xn=x0-f(x0)/g(x0) where f(x0) is the function evaluated at x0 and g(x0) is the first derivative evaluated at x0
-
+ //This function directly returns the value of m_e based on the x variable found through the NR algorithm
+ // it would be better if this function would calculate only x? and then outside the function we could calculate m_e?
         double xn;
 
         if(f(x0,T,Tc,eps) != 0.0) //If the initial point is not solution, then search

@@ -110,6 +110,7 @@ int exchange_f(int n_cells, double lengthscale,
 
 
 int longitudinal_f(int n_cells,
+				   double T,std::vector<double>Tc,
 				   std::vector<double> chi_par, std::vector<double> m_e,
 				   std::vector<double> mx, std::vector<double> my, std::vector<double> mz,
 				   std::vector<double> &Bx_lon, std::vector<double> &By_lon, std::vector<double> &Bz_lon,
@@ -132,7 +133,8 @@ int longitudinal_f(int n_cells,
 	{
 		mat = mat_id[cell];//Get material id.
 		m_squared = mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]; 
-		pre_factor = (0.5*(1.0/chi_par[mat])) * (1.0 - (m_squared/(m_e[mat]*m_e[mat]))); 
+		if(T<Tc[mat])pre_factor = (0.5*(1.0/chi_par[mat])) * (1.0 - (m_squared/(m_e[mat]*m_e[mat]))); 
+		else if(T>Tc[mat])pre_factor= -1.0/chi_par[mat]*(1.0 - (3.0*Tc[mat]/(5.0*(T-Tc[mat])))*m_squared);
 		Bx_lon[cell] = pre_factor*mx[cell]; //B_lon: [T]
 		By_lon[cell] = pre_factor*my[cell];
 		Bz_lon[cell] = pre_factor*mz[cell];
@@ -214,6 +216,7 @@ int calculate()
 					  field::Bx_exc, field::By_exc, field::Bz_exc);
 
 	field::longitudinal_f(input::n_cells,
+						  input::T, input::Tc,
 						  input::chi_par, input::m_e,
 						  macrospin::mx, macrospin::my, macrospin::mz,
 						  field::Bx_lon, field::By_lon, field::Bz_lon,

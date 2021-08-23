@@ -45,6 +45,7 @@ int exchange_f(int n_cells, double lengthscale,
 
 
 int longitudinal_f(int n_cells,
+				   double T,std::vector<double>Tc,
 				   std::vector<double> chi_par, std::vector<double> m_e,
 				   std::vector<double> mx, std::vector<double> my, std::vector<double> mz,
 				   std::vector<double> &Bx_lon, std::vector<double> &By_lon, std::vector<double> &Bz_lon,
