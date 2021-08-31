@@ -164,8 +164,7 @@ int effective_f(int n_cells,
 		By_eff[cell] = By_ani[cell] + By_app[cell] + By_exc[cell] + By_lon[cell];
 		Bz_eff[cell] = Bz_ani[cell] + Bz_app[cell] + Bz_exc[cell] + Bz_lon[cell];
 	}
-	
-	
+
 
 	return 0;
 
@@ -181,6 +180,8 @@ int effective_torque_f(int n_cells,
 	for(int cell=0; cell<n_cells; cell++)
 	{
 
+
+
 	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell]);
 	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell]);
 	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell]);
@@ -190,7 +191,35 @@ int effective_torque_f(int n_cells,
 				 	  		torque_z[cell]*torque_z[cell]);	
 
 	}
-	
+
+	return 0;
+}
+
+int adjust_field_f(int n_cells,
+				   bool force_DW_formation,
+				   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff)
+{	//this function helps me readjust torques 
+
+	if(force_DW_formation==true)
+	{	//in the case of DW formation I want the effective fields on the edfe .
+		Bx_eff[0]=By_eff[0]=Bz_eff[0]=0.0;
+		Bx_eff[n_cells-1]=By_eff[n_cells-1]=Bz_eff[n_cells-1]=0.0;
+	}
+
+	return 0;
+}
+
+int adjust_torque_f(int n_cells,
+					bool force_DW_formation,
+					std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
+					std::vector<double> &torque_mod)
+{	//this function helps me readjust torques 
+
+	if(force_DW_formation==true)
+	{	//in the case of DW formation I want the torques on the edge spins to be zero.
+		torque_mod[0]=0.0;
+		torque_mod[n_cells-1]=0.0;
+	}
 
 	return 0;
 }
@@ -228,12 +257,28 @@ int calculate()
 					   field::Bx_exc, field::By_exc, field::Bz_exc,
 					   field::Bx_lon, field::By_lon, field::Bz_lon,
 					   field::Bx_eff, field::By_eff, field::Bz_eff);
+	
+	field::adjust_field_f(input::n_cells,
+						  input::force_DW_formation,
+						  field::Bx_eff, field::By_eff, field::Bz_eff);
+	
 
 	field::effective_torque_f(input::n_cells,
 							  macrospin::mx, macrospin::my, macrospin::mz,
 							  field::Bx_eff, field::By_eff, field::Bz_eff,
 							  field::torque_x, field::torque_y, field::torque_z,
 							  field::torque_mod);
+	
+
+	/*
+	field::adjust_torque_f(input::n_cells,
+						   input::force_DW_formation,
+						   field::torque_x, field::torque_y, field::torque_z,
+						   field::torque_mod);
+	*/
+
+	//adjust::field OR 
+	//adjust::torque
 
 
 	

@@ -23,6 +23,16 @@ extern std::vector<double>mx,my,mz;
 int update_magnetisation(double mx_in,double my_in, double mz_in,
 						 double &mx, double &my, double &mz);
 
+int antiparallel_config(int n_cells,
+                       std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
+                       std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
+                       std::vector<int>material_id);
+
+int uniform_config(int n_cells,
+                           std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
+                           std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
+                           std::vector<int>material_id);
+
 }
 
 namespace material{
@@ -57,9 +67,6 @@ int generate_crystal_structure_f(int n_materials,
                                  std::vector<int> &mat_id,
                                  std::vector<double> &x, std::vector<double> &y, std::vector<double> &z);
 
-
-
-
 }
 
 
@@ -69,10 +76,7 @@ namespace macrospin{
 
 
         int alloc_memory(int n_cells);
-        int set_initial_config(int n_cells,
-                           std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
-                           std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
-                           std::vector<int>material_id);
+        int set_initial_config(int n_cells);
     }
 }
 

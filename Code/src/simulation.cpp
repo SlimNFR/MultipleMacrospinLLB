@@ -26,6 +26,7 @@ double total_sim_time = laser_sim_time + equil_sim_time;
 
 //---Functions
 
+
 int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::vector<double> &my, std::vector<double> &mz,
 						 std::vector<int>material_id)
 {	//This function will force the macrospin vectors at the boundaries to be antiparallel
@@ -49,12 +50,17 @@ int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::
 	my[id] = 0.0;
 	mz[id] = m_e[mat_id];	
 
+	field::torque_mod[id]=0.0;
+	//field::Bx_eff[id]=field::By_eff[id]=field::Bz_eff[id]=0.0;
+
  	id=mx.size()-1;
 	mat_id = material_id[id]; //I assume it's the first and last cell are from the same material
 	mx[id] = 0.0;
 	my[id] = 0.0;
 	mz[id] = -m_e[mat_id];
-	
+
+	field::torque_mod[id]=0.0;
+	//field::Bx_eff[id]=field::By_eff[id]=field::Bz_eff[id]=0.0;
 
 	return 0;
 
@@ -78,6 +84,7 @@ int squared_pulse_dynamics(int n_cells,
 	//Temporary variables
 	int t;
 	int mat; //this will save the material id
+	int max_torque_spin_id;//This will save the id of the spin with the maximum torque acting on it
 	double max_torque_mod; //This will hold the maximum torque modulus
 	double T_init = T; //save the temperature before laser pulse is applied
 	bool ONCE = false;
@@ -92,6 +99,7 @@ int squared_pulse_dynamics(int n_cells,
 		mz_n1[cell] = mz_0[cell];
 
 	}
+
 		
 	//Time loop
 	for(t=t_start; t<=t_end; t=t+t_step) //Loop time
@@ -124,7 +132,7 @@ int squared_pulse_dynamics(int n_cells,
 
 
 		field::calculate(); //Compute the field at each new time step
-		utils::max_element_1D_vec(torque_mod,max_torque_mod,false);//Calculate the maximum torque modulus
+		utils::max_element_1D_vec(torque_mod,max_torque_mod,max_torque_spin_id,false);//Calculate the maximum torque modulus
 		
 
 		for(int cell=0; cell<n_cells; cell++) //Loop cells for each time-step
@@ -175,6 +183,7 @@ int equilibrate_system(int n_cells,
 
 	//Temporary variables
 	int mat;//This will save the material id
+	int max_torque_spin_id;// This will save the id of the spin with the maximum torque acting on it
 	double max_torque_mod;
 
 	//Set initial magnetisation coordinates.
@@ -187,19 +196,21 @@ int equilibrate_system(int n_cells,
 		mz_n1[cell] = mz_0[cell];
 
 	}
+	
 	//Time loop
 	for(int t=t_start; t<=t_end; t=t+t_step)//Loop time
 	{	//std::cout<<"TIME: "<<t<<" TIME_END:"<<t_end<<"\n";
 
-		//Force edge spins to be AP
+		
+		//Force edge spins to be AP		
 		if(input::force_DW_formation)simulation::force_DW_formation_f(input::m_e,
 																  	  mx_n1, my_n1, mz_n1,
-																  	  material_id);			
-		
+																  	  material_id);	
 	
 		EQ_REAL_t = t*timescale; //This is the real equilibration time obtained multiplying the imaginary time t by the associated timescale 
 		field::calculate(); //Compute the field at each new timestep
-		utils::max_element_1D_vec(torque_mod, max_torque_mod,false); //Calculate the maximum torque in the system
+
+		utils::max_element_1D_vec(torque_mod, max_torque_mod,max_torque_spin_id, false); //Calculate the maximum torque in the system
 
 		for(int cell=0; cell<n_cells; cell++)//Loop cells for every timestep
 		{

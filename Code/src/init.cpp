@@ -36,40 +36,10 @@ int parameters(int &n_materials)
 									  material::interaction_list, material::start_neighbours, material::end_neighbours);
 
 	
-	/*
-	std::cout<<"Start neighbours:"<<" ";
-	for(int i=0;i<input::n_cells; i++)
-	{
-
-		std::cout<<material::start_neighbours[i]<<" ";
-	}		
-	std::cout<<"\n";
-	
-	
-	
-	std::cout<<"End neighbours:"<<" ";
-	for(int i=0;i<input::n_cells; i++)
-	{
-
-		std::cout<<material::end_neighbours[i]<<" ";
-	}		
-	std::cout<<"\n";
-	
-	
-	std::cout<<"Interaction list "<<" ";
-	for(int i=0;i<material::interaction_list.size(); i++)
-	{
-
-		std::cout<<material::interaction_list[i]<<" ";
-	}		
-	std::cout<<"\n";
-	*/
 
 	macrospin::internal::alloc_memory(input::n_cells);
-	macrospin::internal::set_initial_config(input::n_cells,
-                          		    		input::mx_0, input::my_0, input::mz_0,
-                           		  			macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
-                           		  			material::id);
+	macrospin::internal::set_initial_config(input::n_cells);
+
 	field::internal::alloc_memory(input::n_cells);
 	for(int material=0; material<n_materials; material++)
 	{

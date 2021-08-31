@@ -19,7 +19,7 @@ namespace utils{
 
 //---Functions
 
-int max_element_1D_vec(std::vector<double> vec, double &max, bool absolute);
+int max_element_1D_vec(std::vector<double> vec, double &maxx, int &id, bool absolute);
 
 }
 

@@ -27,6 +27,60 @@ int update_magnetisation(double mx_in,double my_in, double mz_in,
 }
 
 
+int antiparallel_config(int n_cells,
+                       std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
+                       std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
+                       std::vector<int>material_id)
+{
+  //This function will be called when I need to create a DW. It will initialise the macrospin system in
+  //an antiparallel config. w.r.t the middle region.
+
+  int mat;
+  for(int cell=0; cell<n_cells/2; cell++)
+  {
+    mat=material_id[cell];
+    mx0_out[cell]=mx0_in[mat];
+    my0_out[cell]=my0_in[mat];
+    mz0_out[cell]=mz0_in[mat];
+
+    std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
+  }
+
+  for(int cell=n_cells/2; cell<n_cells; cell++)
+  {
+    mat=material_id[cell];
+    mx0_out[cell]=mx0_in[mat];
+    my0_out[cell]=my0_in[mat];
+    mz0_out[cell]=-mz0_in[mat];
+
+    std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
+  }
+
+  return 0;
+}
+
+int uniform_config(int n_cells,
+                       std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
+                       std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
+                       std::vector<int>material_id)
+{ //This function sets the initial configuration of the spin vectors mx0_out my0_out mz0_out from the macrospin file
+  //using the mx_0 my_0 mz_0 vectors  from the input file
+
+  int mat;
+      
+  for(int cell=0; cell<n_cells; cell++)
+  {
+    mat=material_id[cell];
+    mx0_out[cell]=mx0_in[mat];
+    my0_out[cell]=my0_in[mat];
+    mz0_out[cell]=mz0_in[mat];
+
+    //std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
+  }
+  
+  return 0;
+
+}
 }
 
 //---Namespace material
@@ -142,6 +196,7 @@ int generate_crystal_structure_f(int n_materials,
   }
   return 0;  
 }
+
 }
 
 namespace macrospin{
@@ -164,29 +219,29 @@ namespace macrospin{
       return 0;
     }
 
+    int set_initial_config(int n_cells)
+    {
 
-    int set_initial_config(int n_cells,
-                           std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
-                           std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,
-                           std::vector<int>material_id)
-    { //This function sets the initial configuration of the spin vectors mx0_out my0_out mz0_out from the macrospin file
-      //using the mx_0 my_0 mz_0 vectors  from the input file
-
-      int mat;
-      for(int cell=0; cell<n_cells; cell++)
+      if(input::force_DW_formation==0)
       {
-        mat=material_id[cell];
-        mx0_out[cell]=mx0_in[mat];
-        my0_out[cell]=my0_in[mat];
-        mz0_out[cell]=mz0_in[mat];
-
-        //std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
+        macrospin::uniform_config(n_cells,
+                                  input::mx_0, input::my_0, input::mz_0,
+                                  macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
+                                  material::id);
       }
 
+      else if(input::force_DW_formation==1)
+      {
+
+        macrospin::antiparallel_config(n_cells,
+                                       input::mx_0, input::my_0, input::mz_0,
+                                       macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
+                                       material::id);
+      }
+
+
       return 0;
-
     }
-
   }
 }
 

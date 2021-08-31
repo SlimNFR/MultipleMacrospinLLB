@@ -63,6 +63,17 @@ int effective_torque_f(int n_cells,
 					   std::vector<double> Bx_eff, std::vector<double> By_eff, std::vector<double> Bz_eff,
 					   std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
 					   std::vector<double>  &torque_mod);
+
+int adjust_field_f(int n_cells,
+				   bool force_DW_formation,
+				   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff);
+
+int adjust_torque_f(int n_cells,
+					bool force_DW_formation,
+					std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
+					std::vector<double> &torque_mod);
+
+
 int calculate();
 
 
