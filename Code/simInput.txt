@@ -1,5 +1,5 @@
-T 300.0
-B_app 0.0
+T 1479.0
+B_app 100.0
 B_theta 0.0
 B_phi 0.0
 t_min_equil 0
@@ -21,4 +21,4 @@ A_vs_T_curve 0
 equilibrate 1
 laser_dynamics 0
 force_DW_formation 0
-remove_precession_term 0
+remove_precession_term 1

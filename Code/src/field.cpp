@@ -117,9 +117,9 @@ int longitudinal_f(int n_cells,
 				   std::vector<int>mat_id)
 {
 	//calculates the longitudinal field components
-	//I assume I work below Tc for now
+
 	double m_squared; //This will save the value of mxmx + mymy + mzmz
-	double pre_factor; //This is the prefactor in front of the long. field (1/(2chi_par))(1-m^2/me^2)
+	double pre_factor; //This is the prefactor in front of the long. field 
 	int mat; //This will store the material id
 	if(input::T==0)
 	{	//If the temperature is zero then no longitudinal field should be present..
@@ -201,7 +201,7 @@ int adjust_field_f(int n_cells,
 {	//this function helps me readjust torques 
 
 	if(force_DW_formation==true)
-	{	//in the case of DW formation I want the effective fields on the edfe .
+	{	//in the case of DW formation I want the effective fields on the edge to be zero.
 		Bx_eff[0]=By_eff[0]=Bz_eff[0]=0.0;
 		Bx_eff[n_cells-1]=By_eff[n_cells-1]=Bz_eff[n_cells-1]=0.0;
 	}

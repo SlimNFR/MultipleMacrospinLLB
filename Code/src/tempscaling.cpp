@@ -37,7 +37,7 @@ int alpha_perp_f(double T, double Tc, double lambda, double &alpha_perp)
 		if(T>Tc)alpha_perp=(2.0/3.0)*(T/Tc)*lambda;
 
 		//T<=Tc case
-		else if(T<Tc)alpha_perp = lambda*(1-(T/(3*Tc)));
+		else if(T<Tc)alpha_perp = lambda*(1.0-(T/(3.0*Tc)));
 
 	return 0;
 }

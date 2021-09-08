@@ -23,6 +23,9 @@ extern std::vector<double>mx,my,mz;
 int update_magnetisation(double mx_in,double my_in, double mz_in,
 						 double &mx, double &my, double &mz);
 
+int read_config_from_file(int n_cells,
+                          std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out);
+
 int antiparallel_config(int n_cells,
                        std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
                        std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out,

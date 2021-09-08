@@ -6,6 +6,9 @@
 #include<iostream>
 #include<deque>
 #include<cmath>
+#include<fstream>
+#include<iostream>
+#include<string>
 //---User-defined libraries
 #include"structure.h"
 
@@ -26,6 +29,34 @@ int update_magnetisation(double mx_in,double my_in, double mz_in,
 	return 0;
 }
 
+int read_config_from_file(int n_cells,
+                          std::vector<double> &mx0_out,std::vector<double> &my0_out,std::vector<double> &mz0_out)
+{
+  //This function reads initialises the macrocell spin configuration from a file.
+  std::string cfgFile="initial_configuration.txt";
+  std::ifstream f1(cfgFile);
+
+  if(!f1)
+  {
+        std::cout << std::endl << "Failed to open the file: "<< cfgFile <<std::endl;
+        exit(1);
+  }
+
+  for(int cell=0; cell<n_cells; cell++)
+  {
+    f1 >> mx0_out[cell];
+    f1 >> my0_out[cell];
+    f1 >> mz0_out[cell];
+
+    std::cout<<"cell: "<<cell<<" mx0: "<<mx0_out[cell]<<" my0: "<<my0_out[cell]<<" mz0: "<<mz0_out[cell]<<"\n";
+
+
+  }
+
+
+
+  return 0;
+}
 
 int antiparallel_config(int n_cells,
                        std::vector<double> mx0_in,std::vector<double> my0_in,std::vector<double> mz0_in,
@@ -221,25 +252,28 @@ namespace macrospin{
 
     int set_initial_config(int n_cells)
     {
-
-      if(input::force_DW_formation==0)
+      if(input::force_DW_formation==0 && input::read_config_from_file==0)
       {
         macrospin::uniform_config(n_cells,
                                   input::mx_0, input::my_0, input::mz_0,
                                   macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
                                   material::id);
       }
-
-      else if(input::force_DW_formation==1)
-      {
-
-        macrospin::antiparallel_config(n_cells,
-                                       input::mx_0, input::my_0, input::mz_0,
-                                       macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
-                                       material::id);
+      else
+      {  
+        if(input::force_DW_formation==1)
+        {
+          macrospin::antiparallel_config(n_cells,
+                                         input::mx_0, input::my_0, input::mz_0,
+                                         macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
+                                         material::id);
+        }
+        if(input::read_config_from_file==1)
+        {
+          macrospin::read_config_from_file(input::n_cells,
+                                           macrospin::mx_0, macrospin::my_0, macrospin::mz_0);
+        }
       }
-
-
       return 0;
     }
   }

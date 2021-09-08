@@ -63,6 +63,11 @@ extern std::vector<double> eps;
 extern std::vector<double> ex;
 extern std::vector<double> ey;
 extern std::vector<double> ez;
+//---Initial conditions
+extern std::vector<double>mx_0;
+extern std::vector<double>my_0;
+extern std::vector<double>mz_0;
+extern bool read_config_from_file;
 
 //---Simulation paramters
 extern double T; // Magnetic moment temperature (electron temperature in this model): [K]
@@ -89,12 +94,6 @@ extern double timescale_laser_dynamics;
 extern double TOL_LD;
 extern double T_pulse;
 extern int pulse_duration; //fs !!Important, this needs to be in the same time unit as the timescale_laser_dynamics
-
-
-//---Initial conditions
-extern std::vector<double>mx_0;
-extern std::vector<double>my_0;
-extern std::vector<double>mz_0;
 
 //---Simulation
 

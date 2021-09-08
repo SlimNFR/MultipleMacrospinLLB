@@ -64,6 +64,7 @@ std::vector<double>ez; // H_ani_z
 std::vector<double>mx_0;
 std::vector<double>my_0;
 std::vector<double>mz_0;
+bool read_config_from_file;
 
 // //---Simulation paramters
 double T; // Magnetic moment temperature (electron temperature in this model): [K]
@@ -537,7 +538,11 @@ if(!inFile)
         inFile>>input::mz_0[i];
         std::cout<< input::mz_0[i] << " ";
     }
+
     std::cout<<"\n";
+    inFile >> s1>> input::read_config_from_file;
+    std::cout <<"Read spin configuration from file [bool]:"<<"\t" <<input::read_config_from_file<< "\t"<< std::endl;
+    
     std::cout<<"\n";
 
     return 0;

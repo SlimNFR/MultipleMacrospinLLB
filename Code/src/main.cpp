@@ -4,15 +4,15 @@
 //---Standard libraries
 #include<iostream>
 
+
 //---User-defined libraries
 #include"init.h"
-
+#include"input.h"
 int main()
 {
 
 
 init::internal::run();
-
 init::internal::end();
 
 return 0;

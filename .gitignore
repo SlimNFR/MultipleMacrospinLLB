@@ -7,3 +7,5 @@ Data/*
 *.swp
 *.sh
 *.log
+initial_configuration.txt
+final_configuration.txt
