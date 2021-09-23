@@ -21,6 +21,10 @@ std::vector<double> Bx_exc, By_exc, Bz_exc;
 std::vector<double> Bx_lon, By_lon, Bz_lon;
 std::vector<double> Bx_eff, By_eff, Bz_eff;
 
+std::vector<double> torque_app_x, torque_app_y, torque_app_z, torque_app_mod;
+std::vector<double> torque_ani_x, torque_ani_y, torque_ani_z, torque_ani_mod;
+std::vector<double> torque_exc_x, torque_exc_y, torque_exc_z, torque_exc_mod;
+std::vector<double> torque_lon_x, torque_lon_y, torque_lon_z, torque_lon_mod;
 std::vector<double> torque_x, torque_y, torque_z, torque_mod;
 
 //---Functions
@@ -41,6 +45,7 @@ int uniax_anis_f(int n_cells,
 		Bx_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ex[mat];	//B_ani : [T]
 		By_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ey[mat];
 		Bz_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ez[mat];
+		//std::cout<<"Anisotropy is: "<<K[mat]<<"\n";
 		//std::cout<<"Hk: "<<Hk<<" Ms:"<<Ms[mat]<<"K: "<<K[mat]<<"\n";
 		//std::cout<<"Bx_ani: "<<Bx_ani[cell]<<"By_ani: "<<By_ani[cell]<<"Bz_ani: "<<Bz_ani[cell]<<"\n";
 	}
@@ -93,7 +98,7 @@ int exchange_f(int n_cells, double lengthscale,
 			neighbour = int_list[count_neighbour]; //Get neighbour from interaction list
 			mat_id_neighbour=material_id[neighbour]; //Get material id of neighbour
 			A = A_T_matrix[mat_id_cell][mat_id_neighbour]; //Get exchange from exchange matrix
-
+			//std::cout<<"Exchange is: "<<A<<"\n";
 			//Calculate exchange
 			Bx_exc[cell] += (2.0*A/pre_factor)*(mx[neighbour] - mx[cell]); //  [T]
 			By_exc[cell] += (2.0*A/pre_factor)*(my[neighbour] - my[cell]);
@@ -169,6 +174,108 @@ int effective_f(int n_cells,
 	return 0;
 
 }
+
+
+int torque_app_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_app, std::vector<double> By_app, std::vector<double> Bz_app,
+				 std::vector<double> &torque_app_x, std::vector<double> &torque_app_y, std::vector<double> &torque_app_z,
+			     std::vector<double> &torque_app_mod)
+{
+
+	for(int cell=0; cell<n_cells; cell++)
+	{
+
+
+	torque_app_x[cell] = (my[cell]*Bz_app[cell] - mz[cell]*By_app[cell]);
+	torque_app_y[cell] = (mz[cell]*Bx_app[cell] - mx[cell]*Bz_app[cell]);
+	torque_app_z[cell] = (mx[cell]*By_app[cell] - my[cell]*Bx_app[cell]);
+
+	torque_app_mod[cell] = sqrt(torque_app_x[cell]*torque_app_x[cell]+
+				 	  	    	torque_app_y[cell]*torque_app_y[cell]+
+				 	  			torque_app_z[cell]*torque_app_z[cell]);	
+
+	}
+
+	return 0;
+}
+
+
+int torque_ani_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_ani, std::vector<double> By_ani, std::vector<double> Bz_ani,
+				 std::vector<double> &torque_ani_x, std::vector<double> &torque_ani_y, std::vector<double> &torque_ani_z,
+			     std::vector<double> &torque_ani_mod)
+{
+
+	for(int cell=0; cell<n_cells; cell++)
+	{
+
+
+	torque_ani_x[cell] = (my[cell]*Bz_ani[cell] - mz[cell]*By_ani[cell]);
+	torque_ani_y[cell] = (mz[cell]*Bx_ani[cell] - mx[cell]*Bz_ani[cell]);
+	torque_ani_z[cell] = (mx[cell]*By_ani[cell] - my[cell]*Bx_ani[cell]);
+
+	torque_ani_mod[cell] = sqrt(torque_ani_x[cell]*torque_ani_x[cell]+
+				 	  	    	torque_ani_y[cell]*torque_ani_y[cell]+
+				 	  			torque_ani_z[cell]*torque_ani_z[cell]);	
+
+	}
+
+	return 0;
+}
+
+int torque_exc_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_exc, std::vector<double> By_exc, std::vector<double> Bz_exc,
+				 std::vector<double> &torque_exc_x, std::vector<double> &torque_exc_y, std::vector<double> &torque_exc_z,
+			     std::vector<double> &torque_exc_mod)
+{
+
+	for(int cell=0; cell<n_cells; cell++)
+	{
+
+
+	torque_exc_x[cell] = (my[cell]*Bz_exc[cell] - mz[cell]*By_exc[cell]);
+	torque_exc_y[cell] = (mz[cell]*Bx_exc[cell] - mx[cell]*Bz_exc[cell]);
+	torque_exc_z[cell] = (mx[cell]*By_exc[cell] - my[cell]*Bx_exc[cell]);
+
+	torque_exc_mod[cell] = sqrt(torque_exc_x[cell]*torque_exc_x[cell]+
+				 	  	    	torque_exc_y[cell]*torque_exc_y[cell]+
+				 	  			torque_exc_z[cell]*torque_exc_z[cell]);	
+
+	}
+
+	return 0;
+}
+
+int torque_lon_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_lon, std::vector<double> By_lon, std::vector<double> Bz_lon,
+				 std::vector<double> &torque_lon_x, std::vector<double> &torque_lon_y, std::vector<double> &torque_lon_z,
+			     std::vector<double> &torque_lon_mod)
+{
+
+	for(int cell=0; cell<n_cells; cell++)
+	{
+
+
+
+	torque_lon_x[cell] = (my[cell]*Bz_lon[cell] - mz[cell]*By_lon[cell]);
+	torque_lon_y[cell] = (mz[cell]*Bx_lon[cell] - mx[cell]*Bz_lon[cell]);
+	torque_lon_z[cell] = (mx[cell]*By_lon[cell] - my[cell]*Bx_lon[cell]);
+
+	torque_lon_mod[cell] = sqrt(torque_lon_x[cell]*torque_lon_x[cell]+
+				 	  	    	torque_lon_y[cell]*torque_lon_y[cell]+
+				 	  			torque_lon_z[cell]*torque_lon_z[cell]);	
+
+	}
+
+	return 0;
+}
+
+
+
 
 int effective_torque_f(int n_cells,
 					   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
@@ -262,12 +369,39 @@ int calculate()
 						  input::force_DW_formation,
 						  field::Bx_eff, field::By_eff, field::Bz_eff);
 	
+	field::torque_app_f(input::n_cells,
+						macrospin::mx, macrospin::my, macrospin::mz,
+						field::Bx_app, field::By_app, field::Bz_app,
+						field::torque_app_x, field::torque_app_y, field::torque_app_z,
+						field::torque_app_mod);
+
+
+	field::torque_ani_f(input::n_cells,
+						macrospin::mx, macrospin::my, macrospin::mz,
+						field::Bx_ani, field::By_ani, field::Bz_ani,
+						field::torque_ani_x, field::torque_ani_y, field::torque_ani_z,
+						field::torque_ani_mod);
+
+
+	field::torque_exc_f(input::n_cells,
+						macrospin::mx, macrospin::my, macrospin::mz,
+						field::Bx_exc, field::By_exc, field::Bz_exc,
+						field::torque_exc_x, field::torque_exc_y, field::torque_exc_z,
+						field::torque_exc_mod);
+
+	field::torque_lon_f(input::n_cells,
+						macrospin::mx, macrospin::my, macrospin::mz,
+						field::Bx_lon, field::By_lon, field::Bz_lon,
+						field::torque_lon_x, field::torque_lon_y, field::torque_lon_z,
+						field::torque_lon_mod);
 
 	field::effective_torque_f(input::n_cells,
 							  macrospin::mx, macrospin::my, macrospin::mz,
 							  field::Bx_eff, field::By_eff, field::Bz_eff,
 							  field::torque_x, field::torque_y, field::torque_z,
 							  field::torque_mod);
+	
+
 	
 
 	/*
@@ -317,6 +451,22 @@ namespace field{
 			field::torque_y.resize(n_cells,0.0);
 			field::torque_z.resize(n_cells,0.0);
 			field::torque_mod.resize(n_cells,0.0);
+			field::torque_app_x.resize(n_cells,0.0);
+			field::torque_app_y.resize(n_cells,0.0);
+			field::torque_app_z.resize(n_cells,0.0);
+			field::torque_app_mod.resize(n_cells,0.0);
+			field::torque_ani_x.resize(n_cells,0.0);
+			field::torque_ani_y.resize(n_cells,0.0);
+			field::torque_ani_z.resize(n_cells,0.0);
+			field::torque_ani_mod.resize(n_cells,0.0);
+			field::torque_exc_x.resize(n_cells,0.0);
+			field::torque_exc_y.resize(n_cells,0.0);
+			field::torque_exc_z.resize(n_cells,0.0);
+			field::torque_exc_mod.resize(n_cells,0.0);
+			field::torque_lon_x.resize(n_cells,0.0);
+			field::torque_lon_y.resize(n_cells,0.0);
+			field::torque_lon_z.resize(n_cells,0.0);
+			field::torque_lon_mod.resize(n_cells,0.0);
 			
 
 			return 0;

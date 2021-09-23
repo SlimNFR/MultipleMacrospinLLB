@@ -35,7 +35,8 @@ int squared_pulse_dynamics(int n_cells,
 					   	   double &T, double TOL,
 					   	   int t_start, int t_end, int t_step, double timescale,
 					   	   int pulse_duration, double T_pulse,
-					   	   std::ofstream &f1);
+					   	   std::ofstream &f1,
+					   	   std::ofstream &f2);
 
 int equilibrate_system(int n_cells,
 					   double gamma, std::vector<double> &alpha_par, std::vector<double>&alpha_perp,
@@ -46,7 +47,8 @@ int equilibrate_system(int n_cells,
 					   std::vector<int> material_id,
 					   double &EQ_REAL_t, double T, double TOL,
 					   int t_start, int t_end, int t_step, double timescale,
-					   std::ofstream &f1);
+					   std::ofstream &f1,
+					   std::ofstream &f2);
 
 }
 

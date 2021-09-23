@@ -23,9 +23,11 @@ extern std::vector<std::ofstream> files_X_temp;//X=susceptibility
 extern std::vector<std::ofstream> files_K_temp;
 extern std::vector<std::ofstream> files_A_temp;
 extern std::ofstream file_mx_my_mz_time;
+extern std::ofstream file_torques_time;
 //---Functions
 int open_files_to_write(int n_materials);
 int close_files(int n_materials);
+int torques_f(int cell, double time, std::ofstream &f1);
 
 }
 

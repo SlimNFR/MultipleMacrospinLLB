@@ -1,6 +1,6 @@
 n_materials 1
 lengthscale 1e-11
-length_materials 50000
+length_materials 250
 width_materials 250
 height_materials 250
 unitcell_size 25
@@ -9,7 +9,7 @@ Num_atoms_per_unit_cell 6
 Tc 1480
 Ms0_CGS 1400
 K0_CGS 0.45e7
-A0_list 1e-11
+A0_list 4.73e-11
 lambda 0.1
 eps 1.0
 ex 0.0
@@ -18,4 +18,4 @@ ez 1.0
 mx0 0.6
 my0 0.0
 mz0 0.8
-read_config_from_file 1
+read_config_from_file 0

@@ -7,6 +7,7 @@
 #include<string>
 
 //---User-defined libraries
+#include"field.h"
 #include"output.h"
 #include"input.h"
 
@@ -21,6 +22,7 @@ std::vector<std::ofstream> files_X_temp;//X=susceptibility
 std::vector<std::ofstream> files_K_temp;
 std::vector<std::ofstream> files_A_temp;
 std::ofstream file_mx_my_mz_time;
+std::ofstream file_torques_time;
 
 //---Functions
 int open_files_to_write(int n_materials)
@@ -84,7 +86,8 @@ int open_files_to_write(int n_materials)
 	if(input::equilibrate == true || input::laser_dynamics == true )
 	{
 
-		output::file_mx_my_mz_time.open("output_mx_my_mz_time.txt", std::ofstream::out);	
+		output::file_mx_my_mz_time.open("output_mx_my_mz_time.txt", std::ofstream::out);
+		output::file_torques_time.open("output_torques_time.txt", std::ofstream::out);	
 
 	}
 
@@ -133,12 +136,27 @@ int close_files(int n_materials)
 	{
 
 		output::file_mx_my_mz_time.close();
+		output::file_torques_time.close();
 
 	}
 
 
 	return 0;
 
+}
+
+int torques_f(int cell, double time, std::ofstream &f1)
+{
+
+
+	f1<<time<<" "<<cell<<" "<<field::torque_app_x[cell]<<" "<<field::torque_app_y[cell]<<" "<<field::torque_app_z[cell]<<" "<<field::torque_app_mod[cell]<<" "
+										 <<field::torque_ani_x[cell]<<" "<<field::torque_ani_y[cell]<<" "<<field::torque_ani_z[cell]<<" "<<field::torque_ani_mod[cell]<<" "
+										 <<field::torque_exc_x[cell]<<" "<<field::torque_exc_y[cell]<<" "<<field::torque_exc_z[cell]<<" "<<field::torque_exc_mod[cell]<<" "
+										 <<field::torque_lon_x[cell]<<" "<<field::torque_lon_y[cell]<<" "<<field::torque_lon_z[cell]<<" "<<field::torque_lon_mod[cell]<<" "
+										 <<field::torque_x[cell]<<" "<<field::torque_y[cell]<<" "<<field::torque_z[cell]<<" "<<field::torque_mod[cell]<<"\n";
+
+
+	return 0;	
 }
 
 }

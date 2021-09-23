@@ -13,6 +13,7 @@
 #include"tempscaling.h"
 #include"utils.h"
 #include"structure.h"
+#include"output.h"
 
 //---Namespace simulation
 
@@ -44,6 +45,7 @@ int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::
 	//ay=my[id];
  	//az=-mx[id]*sin(theta) + mz[id]*cos(theta);	
 	
+	
 	id=0;
 	mat_id = material_id[id];
 	mx[id] = 0.0;
@@ -52,6 +54,8 @@ int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::
 
 	field::torque_mod[id]=0.0;
 	//field::Bx_eff[id]=field::By_eff[id]=field::Bz_eff[id]=0.0;
+	
+	
 
  	id=mx.size()-1;
 	mat_id = material_id[id]; //I assume it's the first and last cell are from the same material
@@ -62,6 +66,7 @@ int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::
 	field::torque_mod[id]=0.0;
 	//field::Bx_eff[id]=field::By_eff[id]=field::Bz_eff[id]=0.0;
 
+	
 	return 0;
 
 }
@@ -77,7 +82,8 @@ int squared_pulse_dynamics(int n_cells,
 					   	   double &T, double TOL,
 					   	   int t_start, int t_end, int t_step, double timescale,
 					   	   int pulse_duration, double T_pulse,
-					   	   std::ofstream &f1)
+					   	   std::ofstream &f1,
+					   	   std::ofstream &f2)
 {	
 	//This function simulates laser-induced dynamics via a squared pulse
 
@@ -139,8 +145,8 @@ int squared_pulse_dynamics(int n_cells,
 		{	
 
 			mat = material_id[cell]; //Get material id
-			f1<<LD_REAL_t<<" "<<mx_n1[cell]<<" "<<my_n1[cell]<<" "<<mz_n1[cell]<<" "<<T<<" "<<"\n";//Print time, magnetisation components and temperature
-
+			f1<<LD_REAL_t<<" "<<cell<<" "<<mx_n1[cell]<<" "<<my_n1[cell]<<" "<<mz_n1[cell]<<" "<<T<<" "<<"\n";//Print time, magnetisation components and temperature
+			output::torques_f(cell,LD_REAL_t,f2);// print the torques
 			//Get the next magnetisation value
 			solver::heun_scheme_step(equation::LLB_classic,
 									 input::remove_precession_term,
@@ -177,7 +183,9 @@ int equilibrate_system(int n_cells,
 					   std::vector<int> material_id,
 					   double &EQ_REAL_t, double T, double TOL,
 					   int t_start, int t_end, int t_step, double timescale,
-					   std::ofstream &f1)
+					   std::ofstream &f1,
+					   std::ofstream &f2)
+
 {	//This function equilibrates the system for a given initial temperature and effective field.
 	//The field is calculated as the magnetisation vector changes in time. 
 
@@ -211,13 +219,15 @@ int equilibrate_system(int n_cells,
 		field::calculate(); //Compute the field at each new timestep
 
 		utils::max_element_1D_vec(torque_mod, max_torque_mod,max_torque_spin_id, false); //Calculate the maximum torque in the system
-
+		
 		for(int cell=0; cell<n_cells; cell++)//Loop cells for every timestep
 		{
 			
 			f1<<EQ_REAL_t<<" "<<cell<<" "<<mx_n1[cell]<<" "<<my_n1[cell]<<" "<<mz_n1[cell]<<" "<<T<<" "<<"\n"; //Print time, magnetisation components and temperature
-
+			output::torques_f(cell,EQ_REAL_t,f2);// print the torques
 			//Get the next magnetisation value
+			
+			/*
 			solver::heun_scheme_step(equation::LLB_classic,
 									 input::remove_precession_term,
 									 mx_0[cell],my_0[cell],mz_0[cell],
@@ -225,6 +235,16 @@ int equilibrate_system(int n_cells,
 									 t_step, timescale,
 									 Bx_eff[cell],By_eff[cell],Bz_eff[cell],
 									 mx_n1[cell], my_n1[cell], mz_n1[cell]); 
+			*/
+			
+			solver::RK4_scheme_step(equation::LLB_classic,
+									input::remove_precession_term,
+									mx_0[cell],my_0[cell],mz_0[cell],
+									gamma, alpha_par[mat], alpha_perp[mat],
+									t_step, timescale,
+									Bx_eff[cell],By_eff[cell],Bz_eff[cell],
+									mx_n1[cell], my_n1[cell], mz_n1[cell]); 
+			
 
 			//Set new initial condition
 			mx_0[cell] = mx_n1[cell];

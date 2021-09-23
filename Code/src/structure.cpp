@@ -261,6 +261,7 @@ namespace macrospin{
       }
       else
       {  
+        
         if(input::force_DW_formation==1)
         {
           macrospin::antiparallel_config(n_cells,
@@ -268,6 +269,7 @@ namespace macrospin{
                                          macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
                                          material::id);
         }
+        
         if(input::read_config_from_file==1)
         {
           macrospin::read_config_from_file(input::n_cells,

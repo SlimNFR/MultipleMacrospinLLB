@@ -21,6 +21,10 @@ extern std::vector<double> Bx_exc, By_exc, Bz_exc;
 extern std::vector<double> Bx_lon, By_lon, Bz_lon;
 extern std::vector<double> Bx_eff, By_eff, Bz_eff;
 
+extern std::vector<double> torque_app_x, torque_app_y, torque_app_z, torque_app_mod;
+extern std::vector<double> torque_ani_x, torque_ani_y, torque_ani_z, torque_ani_mod;
+extern std::vector<double> torque_exc_x, torque_exc_y, torque_exc_z, torque_exc_mod;
+extern std::vector<double> torque_lon_x, torque_lon_y, torque_lon_z, torque_lon_mod;
 extern std::vector<double> torque_x, torque_y, torque_z, torque_mod;
 
 //---Functions
@@ -57,6 +61,30 @@ int effective_f(int n_cells,
 				std::vector<double> Bx_exc, std::vector<double> By_exc, std::vector<double> Bz_exc,
 				std::vector<double> Bx_lon, std::vector<double> By_lon, std::vector<double> Bz_lon,
 				std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff);
+
+int torque_app_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_app, std::vector<double> By_app, std::vector<double> Bz_app,
+				 std::vector<double> &torque_app_x, std::vector<double> &torque_app_y, std::vector<double> &torque_app_z,
+			     std::vector<double> &torque_app_mod);
+
+int torque_ani_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_ani, std::vector<double> By_ani, std::vector<double> Bz_ani,
+				 std::vector<double> &torque_ani_x, std::vector<double> &torque_ani_y, std::vector<double> &torque_ani_z,
+			     std::vector<double> &torque_ani_mod);
+
+int torque_exc_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_exc, std::vector<double> By_exc, std::vector<double> Bz_exc,
+				 std::vector<double> &torque_exc_x, std::vector<double> &torque_exc_y, std::vector<double> &torque_exc_z,
+			     std::vector<double> &torque_exc_mod);
+
+int torque_lon_f(int n_cells,
+				 std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
+				 std::vector<double> Bx_lon, std::vector<double> By_lon, std::vector<double> Bz_lon,
+				 std::vector<double> &torque_lon_x, std::vector<double> &torque_lon_y, std::vector<double> &torque_lon_z,
+			     std::vector<double> &torque_lon_mod);
 
 int effective_torque_f(int n_cells,
 					   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,

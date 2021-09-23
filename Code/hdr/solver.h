@@ -30,6 +30,18 @@ int heun_scheme_step(int (*dfunc)(bool,
 					 double Bx_eff, double By_eff, double Bz_eff,
 					 double &mx_n1, double &my_n1, double &mz_n1);
 
+int RK4_scheme_step(int (*dfunc)(bool,
+					 double, double, double,
+					 double, double, double,
+					 double, double, double,
+					 double &,double &,double &),
+					 bool remove_precession_term,
+					 double mx_0,double my_0, double mz_0,
+					 double gamma, double alpha_par, double alpha_perp,
+					 int delta_t, double timescale, //timescale variable should be intialised to 1ps or 1ns or 1fs depending on the timescale of my sim
+					 double Bx_eff, double By_eff, double Bz_eff,
+					 double &mx_n1, double &my_n1, double &mz_n1);
+
 }
 
 #endif
