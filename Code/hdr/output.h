@@ -27,7 +27,8 @@ extern std::ofstream file_torques_time;
 //---Functions
 int open_files_to_write(int n_materials);
 int close_files(int n_materials);
-int torques_f(int cell, double time, std::ofstream &f1);
+int macrospin_vectors(int n_cells, double time, double T, std::ofstream &f1);
+int torques_f(int n_cells, double time, std::ofstream &f1);
 
 }
 

@@ -10,7 +10,7 @@
 #include"field.h"
 #include"output.h"
 #include"input.h"
-
+#include"structure.h"
 //---Namespace output
 
 namespace output{
@@ -145,16 +145,37 @@ int close_files(int n_materials)
 
 }
 
-int torques_f(int cell, double time, std::ofstream &f1)
+int macrospin_vectors(int n_cells, double time, double T, std::ofstream &f1)
+{
+	for(int cell=0; cell<n_cells; cell++)
+	{
+
+		f1<<time<<" "<<cell<<" "<<macrospin::mx[cell]<<" "<<macrospin::my[cell]<<" "<<macrospin::mz[cell]<<" "
+		  <<T<<" "<<"\n";//Print time, magnetisation components and temperature
+
+	}
+
+
+	return 0;
+	
+
+}
+
+
+int torques_f(int n_cells, double time, std::ofstream &f1)
 {
 
 
-	f1<<time<<" "<<cell<<" "<<field::torque_app_x[cell]<<" "<<field::torque_app_y[cell]<<" "<<field::torque_app_z[cell]<<" "<<field::torque_app_mod[cell]<<" "
+	for(int cell=0; cell<n_cells; cell++)
+	{
+
+		f1<<time<<" "<<cell<<" "<<field::torque_app_x[cell]<<" "<<field::torque_app_y[cell]<<" "<<field::torque_app_z[cell]<<" "<<field::torque_app_mod[cell]<<" "
 										 <<field::torque_ani_x[cell]<<" "<<field::torque_ani_y[cell]<<" "<<field::torque_ani_z[cell]<<" "<<field::torque_ani_mod[cell]<<" "
 										 <<field::torque_exc_x[cell]<<" "<<field::torque_exc_y[cell]<<" "<<field::torque_exc_z[cell]<<" "<<field::torque_exc_mod[cell]<<" "
 										 <<field::torque_lon_x[cell]<<" "<<field::torque_lon_y[cell]<<" "<<field::torque_lon_z[cell]<<" "<<field::torque_lon_mod[cell]<<" "
 										 <<field::torque_x[cell]<<" "<<field::torque_y[cell]<<" "<<field::torque_z[cell]<<" "<<field::torque_mod[cell]<<"\n";
 
+	}
 
 	return 0;	
 }

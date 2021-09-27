@@ -148,14 +148,15 @@ int squared_pulse_dynamics(int n_cells,
 			f1<<LD_REAL_t<<" "<<cell<<" "<<mx_n1[cell]<<" "<<my_n1[cell]<<" "<<mz_n1[cell]<<" "<<T<<" "<<"\n";//Print time, magnetisation components and temperature
 			output::torques_f(cell,LD_REAL_t,f2);// print the torques
 			//Get the next magnetisation value
-			solver::heun_scheme_step(equation::LLB_classic,
+			/*solver::heun_scheme_step(cell,
+									 equation::LLB_classic,
 									 input::remove_precession_term,
 									 mx_0[cell],my_0[cell],mz_0[cell],
 									 gamma, alpha_par[mat], alpha_perp[mat],
 									 t_step, timescale,
 									 Bx_eff[cell],By_eff[cell],Bz_eff[cell],
 									 mx_n1[cell], my_n1[cell], mz_n1[cell]);
-
+*/
 			//Set the new initial condition
 			mx_0[cell] = mx_n1[cell];
 			my_0[cell] = my_n1[cell];
@@ -187,14 +188,14 @@ int equilibrate_system(int n_cells,
 					   std::ofstream &f2)
 
 {	//This function equilibrates the system for a given initial temperature and effective field.
-	//The field is calculated as the magnetisation vector changes in time. 
+	
 
 	//Temporary variables
 	int mat;//This will save the material id
 	int max_torque_spin_id;// This will save the id of the spin with the maximum torque acting on it
 	double max_torque_mod;
 
-	//Set initial magnetisation coordinates.
+	//Set initial magnetisation coordinates
 	for(int cell = 0; cell<n_cells; cell++)
 	{
 		mat=material_id[cell];
@@ -207,52 +208,35 @@ int equilibrate_system(int n_cells,
 	
 	//Time loop
 	for(int t=t_start; t<=t_end; t=t+t_step)//Loop time
-	{	//std::cout<<"TIME: "<<t<<" TIME_END:"<<t_end<<"\n";
+	{	
 
-		
 		//Force edge spins to be AP		
 		if(input::force_DW_formation)simulation::force_DW_formation_f(input::m_e,
 																  	  mx_n1, my_n1, mz_n1,
 																  	  material_id);	
 	
 		EQ_REAL_t = t*timescale; //This is the real equilibration time obtained multiplying the imaginary time t by the associated timescale 
-		field::calculate(); //Compute the field at each new timestep
 
-		utils::max_element_1D_vec(torque_mod, max_torque_mod,max_torque_spin_id, false); //Calculate the maximum torque in the system
-		
-		for(int cell=0; cell<n_cells; cell++)//Loop cells for every timestep
-		{
 			
-			f1<<EQ_REAL_t<<" "<<cell<<" "<<mx_n1[cell]<<" "<<my_n1[cell]<<" "<<mz_n1[cell]<<" "<<T<<" "<<"\n"; //Print time, magnetisation components and temperature
-			output::torques_f(cell,EQ_REAL_t,f2);// print the torques
-			//Get the next magnetisation value
-			
-			/*
-			solver::heun_scheme_step(equation::LLB_classic,
-									 input::remove_precession_term,
-									 mx_0[cell],my_0[cell],mz_0[cell],
-									 gamma, alpha_par[mat], alpha_perp[mat],
-									 t_step, timescale,
-									 Bx_eff[cell],By_eff[cell],Bz_eff[cell],
-									 mx_n1[cell], my_n1[cell], mz_n1[cell]); 
-			*/
-			
-			solver::RK4_scheme_step(equation::LLB_classic,
-									input::remove_precession_term,
-									mx_0[cell],my_0[cell],mz_0[cell],
-									gamma, alpha_par[mat], alpha_perp[mat],
-									t_step, timescale,
-									Bx_eff[cell],By_eff[cell],Bz_eff[cell],
-									mx_n1[cell], my_n1[cell], mz_n1[cell]); 
-			
+		//Output
+		output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+		output::torques_f(n_cells,EQ_REAL_t,f2);
 
-			//Set new initial condition
-			mx_0[cell] = mx_n1[cell];
-			my_0[cell] = my_n1[cell];
-			mz_0[cell] = mz_n1[cell];
-
-		}
-		if(max_torque_mod<TOL)break;//Check for stopping condition
+		//Calculate the maximum torque in the system and check stopping condition
+		field::calculate();
+		utils::max_element_1D_vec(torque_mod, max_torque_mod,max_torque_spin_id, false); 
+		if(max_torque_mod<TOL)break;
+			
+		//Get new step	
+		solver::heun_scheme_step(n_cells,
+		 						 equation::LLB_classic,
+		 						 input::remove_precession_term,
+			 					 material_id, 
+			 					 mx_0, my_0, mz_0,
+			 					 mx_n1, my_n1, mz_n1, 
+			 					 Bx_eff, By_eff, Bz_eff,
+			 					 gamma, alpha_par, alpha_perp,
+			 					 t_step, timescale);
 
 	}
 	
