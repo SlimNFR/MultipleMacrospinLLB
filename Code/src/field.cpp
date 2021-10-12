@@ -300,6 +300,7 @@ int effective_torque_f(int n_cells,
 					   std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
 					   std::vector<double> &torque_mod)
 {
+	//mama
 
 	for(int cell=0; cell<n_cells; cell++)
 	{
