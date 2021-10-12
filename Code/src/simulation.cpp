@@ -219,8 +219,12 @@ int equilibrate_system(int n_cells,
 
 			
 		//Output
-		output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
-		output::torques_f(n_cells,EQ_REAL_t,f2);
+		if(t%(t_step*1000)==0)
+		{
+			output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+		}
+
+		//output::torques_f(n_cells,EQ_REAL_t,f2);
 
 		//Calculate the maximum torque in the system and check stopping condition
 		field::calculate();

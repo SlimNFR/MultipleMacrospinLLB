@@ -9,6 +9,7 @@
 #include"field.h"
 #include"structure.h"
 #include"input.h"
+#include"utils.h"
 
 //---Namespace field
 
@@ -163,12 +164,27 @@ int effective_f(int n_cells,
 {
 	//calculates the total field (effective) components
 
+	//std::vector<double>B_mod;
+	//B_mod.resize(n_cells,0.0);
+	//double max_Bmod;
+	//int id_max_Bmod;
+
 	for(int cell=0; cell<n_cells;cell++)
 	{
 		Bx_eff[cell] = Bx_ani[cell] + Bx_app[cell] + Bx_exc[cell] + Bx_lon[cell]; //B_eff: [T]
 		By_eff[cell] = By_ani[cell] + By_app[cell] + By_exc[cell] + By_lon[cell];
 		Bz_eff[cell] = Bz_ani[cell] + Bz_app[cell] + Bz_exc[cell] + Bz_lon[cell];
+
+		/*
+		B_mod[cell] = sqrt(Bx_eff[cell]*Bx_eff[cell] +
+						   By_eff[cell]*By_eff[cell] +
+						   Bz_eff[cell]*Bz_eff[cell]);
+		*/
+
 	}
+
+	//utils::max_element_1D_vec(B_mod, max_Bmod, id_max_Bmod, false);
+	//std::cout<<"Cell max B_mod "<<id_max_Bmod<<" |max Bmod: "<<max_Bmod<<"\n";
 
 
 	return 0;
@@ -185,6 +201,7 @@ int torque_app_f(int n_cells,
 
 	for(int cell=0; cell<n_cells; cell++)
 	{
+
 
 
 	torque_app_x[cell] = (my[cell]*Bz_app[cell] - mz[cell]*By_app[cell]);
@@ -288,15 +305,28 @@ int effective_torque_f(int n_cells,
 	{
 
 
+	double m_mod, B_eff_mod;
+	m_mod=sqrt(mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]);
 
-	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell]);
-	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell]);
-	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell]);
 
+	/*For NORMAL Version mxH comment the 4 next lines*/
+
+	Bx_eff[cell]=Bx_eff[cell]-field::Bx_lon[cell];
+	By_eff[cell]=By_eff[cell]-field::By_lon[cell];
+	Bz_eff[cell]=Bz_eff[cell]-field::Bz_lon[cell];
+	B_eff_mod=sqrt(Bx_eff[cell]*Bx_eff[cell] + By_eff[cell]*By_eff[cell] + Bz_eff[cell]*Bz_eff[cell]);
+
+	
+	
+	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell])/(B_eff_mod*m_mod);
+	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell])/(B_eff_mod*m_mod);
+	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell])/(B_eff_mod*m_mod);
+	
+	
 	torque_mod[cell] = sqrt(torque_x[cell]*torque_x[cell]+
 				 	  	    torque_y[cell]*torque_y[cell]+
 				 	  		torque_z[cell]*torque_z[cell]);	
-
+	
 	}
 
 	return 0;
