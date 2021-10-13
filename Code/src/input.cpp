@@ -50,7 +50,9 @@ std::vector<double> A0_list; //0K Exchange stiffness list [J/m]
 std::vector<std::vector<double>> A0_matrix;//0K Exchange stiffness matrix [J/m]
 std::vector<std::vector<double>> A_T_matrix;//Temperature dependent exchange stiffness matrix [J/m]
 std::vector<double>m_e; //Equilibrium magnetisation: []
+std::vector<double>m_e_gradient; //Vector containing m_e per cell
 std::vector<double>Ms_T; //Saturation magnetisation at T
+std::vector<double>Ms_T_cell; //vector containing Ms value at T per cell 
 std::vector<double>K_T; //Magnetocrystalline anisotropy constant at T
 std::vector<double>mu_s; // Atomic magnetic moment: [J/T]
 std::vector<double>lambda; // Microscopic coupling constant: adimensional
@@ -443,7 +445,29 @@ if(!inFile)
     std::cout<<"\n";
 
     input::m_e.resize(n_materials);
+    input::m_e_gradient.resize(n_cells);
     input::Ms_T.resize(n_materials);
+    input::Ms_T_cell.resize(n_cells);
+
+    //Read megradient values 
+    std::ifstream megradientFile("me_gradient.txt");
+    if(!megradientFile)
+    {
+        std::cout << std::endl << "Failed to open the file: "<< "me_gradient.txt" <<std::endl;
+        exit(1);
+    }
+
+    for(int cell=0; cell<n_cells; cell++)
+    {
+        megradientFile >> input::m_e_gradient[cell];
+        Ms_T_cell[cell]=Ms0_SI[0]*m_e_gradient[cell];
+        std::cout <<"cell: "<<cell<<" |m_e value:"<<m_e_gradient[cell]<<" MsT:"<<Ms_T_cell[cell]<<"\n";
+
+
+    }
+    std::cout<<"\n";
+    
+
     input::K_T.resize(n_materials);
 
     input::mu_s.resize(n_materials);

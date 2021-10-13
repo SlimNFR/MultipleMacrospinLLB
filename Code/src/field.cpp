@@ -10,6 +10,8 @@
 #include"structure.h"
 #include"input.h"
 #include"utils.h"
+#include"tempscaling.h"
+#include"equation.h"
 
 //---Namespace field
 
@@ -42,10 +44,12 @@ int uniax_anis_f(int n_cells,
 	for(int cell=0; cell<n_cells; cell++)
 	{	
 		mat = mat_id[cell];//Get the material id of the spin
-		double Hk = 2.0*K[mat]/Ms[mat];
+		double Hk = 2.0*K[mat]/Ms[cell];
 		Bx_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ex[mat];	//B_ani : [T]
 		By_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ey[mat];
 		Bz_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ez[mat];
+
+
 		//std::cout<<"Anisotropy is: "<<K[mat]<<"\n";
 		//std::cout<<"Hk: "<<Hk<<" Ms:"<<Ms[mat]<<"K: "<<K[mat]<<"\n";
 		//std::cout<<"Bx_ani: "<<Bx_ani[cell]<<"By_ani: "<<By_ani[cell]<<"Bz_ani: "<<Bz_ani[cell]<<"\n";
@@ -92,7 +96,7 @@ int exchange_f(int n_cells, double lengthscale,
 	for(int cell=0; cell<n_cells; cell++) //Loop each cell
 	{
 		mat_id_cell=material_id[cell]; //Get material id of cell
-		double pre_factor = (pow(m_e[mat_id_cell],2.0)*Ms0_SI[mat_id_cell]*pow(macrocell_size[mat_id_cell]*lengthscale, 2.0));
+		double pre_factor = Ms0_SI[mat_id_cell]*pow(macrocell_size[mat_id_cell]*lengthscale, 2.0);
 		for(int count_neighbour=start_neighbours[cell]; count_neighbour<end_neighbours[cell]; count_neighbour++) //Count all cell's neighbours
 		{
 
@@ -101,9 +105,10 @@ int exchange_f(int n_cells, double lengthscale,
 			A = A_T_matrix[mat_id_cell][mat_id_neighbour]; //Get exchange from exchange matrix
 			//std::cout<<"Exchange is: "<<A<<"\n";
 			//Calculate exchange
-			Bx_exc[cell] += (2.0*A/pre_factor)*(mx[neighbour] - mx[cell]); //  [T]
-			By_exc[cell] += (2.0*A/pre_factor)*(my[neighbour] - my[cell]);
-			Bz_exc[cell] += (2.0*A/pre_factor)*(mz[neighbour] - mz[cell]);
+
+			Bx_exc[cell] += (2.0*A/pre_factor)*( mx[neighbour]/pow(m_e[neighbour],2.0) - mx[cell]/pow(m_e[cell],2.0) ); //  [T]
+			By_exc[cell] += (2.0*A/pre_factor)*( my[neighbour]/pow(m_e[neighbour],2.0) - my[cell]/pow(m_e[cell],2.0) );
+			Bz_exc[cell] += (2.0*A/pre_factor)*( mz[neighbour]/pow(m_e[neighbour],2.0) - mz[cell]/pow(m_e[cell],2.0) );
 		}
 
 		//std::cout<<"Cell: "<<cell<<" |Bx_exc_cell:"<<Bx_exc[cell]<<" |By__exc_cell:"<<By_exc[cell]<<" |Bz__exc_cell:"<<Bz_exc[cell]<<"\n";
@@ -126,6 +131,8 @@ int longitudinal_f(int n_cells,
 
 	double m_squared; //This will save the value of mxmx + mymy + mzmz
 	double pre_factor; //This is the prefactor in front of the long. field 
+	double temp_chi_par;
+
 	int mat; //This will store the material id
 	if(input::T==0)
 	{	//If the temperature is zero then no longitudinal field should be present..
@@ -139,8 +146,14 @@ int longitudinal_f(int n_cells,
 	{
 		mat = mat_id[cell];//Get material id.
 		m_squared = mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]; 
-		if(T<Tc[mat])pre_factor = (0.5*(1.0/chi_par[mat])) * (1.0 - (m_squared/(m_e[mat]*m_e[mat]))); 
-		else if(T>Tc[mat])pre_factor= -1.0/chi_par[mat]*(1.0 - (3.0*Tc[mat]/(5.0*(T-Tc[mat])))*m_squared);
+
+
+		//Temporary solution for calculation of correct Chi_|| given the m_e gradient
+		tempscaling::chi_par_f(equation::Langevin_df, T, input::Tc[mat], input::mu_s[mat],m_e[cell], input::eps[mat], temp_chi_par);
+
+
+		if(T<Tc[mat])pre_factor = (0.5*(1.0/temp_chi_par)) * (1.0 - (m_squared/(m_e[cell]*m_e[cell]))); 
+		else if(T>Tc[mat])pre_factor= -1.0/temp_chi_par*(1.0 - (3.0*Tc[mat]/(5.0*(T-Tc[mat])))*m_squared);
 		Bx_lon[cell] = pre_factor*mx[cell]; //B_lon: [T]
 		By_lon[cell] = pre_factor*my[cell];
 		Bz_lon[cell] = pre_factor*mz[cell];
@@ -306,22 +319,23 @@ int effective_torque_f(int n_cells,
 	{
 
 
-	double m_mod, B_eff_mod;
-	m_mod=sqrt(mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]);
+	//double m_mod, B_eff_mod;
+	//m_mod=sqrt(mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]);
 
 
 	/*For NORMAL Version mxH comment the 4 next lines*/
 
+	/*
 	Bx_eff[cell]=Bx_eff[cell]-field::Bx_lon[cell];
 	By_eff[cell]=By_eff[cell]-field::By_lon[cell];
 	Bz_eff[cell]=Bz_eff[cell]-field::Bz_lon[cell];
 	B_eff_mod=sqrt(Bx_eff[cell]*Bx_eff[cell] + By_eff[cell]*By_eff[cell] + Bz_eff[cell]*Bz_eff[cell]);
-
+	*/
 	
 	
-	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell])/(B_eff_mod*m_mod);
-	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell])/(B_eff_mod*m_mod);
-	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell])/(B_eff_mod*m_mod);
+	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell]);///(B_eff_mod*m_mod);
+	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell]);///(B_eff_mod*m_mod);
+	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell]);///(B_eff_mod*m_mod);
 	
 	
 	torque_mod[cell] = sqrt(torque_x[cell]*torque_x[cell]+
@@ -365,7 +379,7 @@ int adjust_torque_f(int n_cells,
 int calculate()
 {
 	field::uniax_anis_f(input::n_cells,
-						input::K_T, input::Ms_T,
+						input::K_T, input::Ms_T_cell,
 						input::ex, input::ey, input::ez,
 						macrospin::mx, macrospin::my, macrospin::mz,
 						field::Bx_ani, field::By_ani, field::Bz_ani,
@@ -377,14 +391,14 @@ int calculate()
 
 	
 	field::exchange_f(input::n_cells,input::lengthscale,
-					  input::m_e, input::Ms0_SI, input::macrocell_size, input::A_T_matrix,
+					  input::m_e_gradient, input::Ms0_SI, input::macrocell_size, input::A_T_matrix,
 					  material::interaction_list, material::start_neighbours, material::end_neighbours, material::id, 
 					  macrospin::mx, macrospin::my, macrospin::mz,
 					  field::Bx_exc, field::By_exc, field::Bz_exc);
 
 	field::longitudinal_f(input::n_cells,
 						  input::T, input::Tc,
-						  input::chi_par, input::m_e,
+						  input::chi_par, input::m_e_gradient,
 						  macrospin::mx, macrospin::my, macrospin::mz,
 						  field::Bx_lon, field::By_lon, field::Bz_lon,
 						  material::id);

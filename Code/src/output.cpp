@@ -155,7 +155,6 @@ int macrospin_vectors(int n_cells, double time, double T, std::ofstream &f1)
 
 	}
 
-
 	return 0;
 	
 
