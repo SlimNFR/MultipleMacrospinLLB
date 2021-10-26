@@ -305,22 +305,23 @@ int effective_torque_f(int n_cells,
 	{
 
 
-	double m_mod, B_eff_mod;
-	m_mod=sqrt(mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]);
+	//double m_mod, B_eff_mod;
+	//m_mod=sqrt(mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]);
 
 
 	/*For NORMAL Version mxH comment the 4 next lines*/
 
+	/*
 	Bx_eff[cell]=Bx_eff[cell]-field::Bx_lon[cell];
 	By_eff[cell]=By_eff[cell]-field::By_lon[cell];
 	Bz_eff[cell]=Bz_eff[cell]-field::Bz_lon[cell];
 	B_eff_mod=sqrt(Bx_eff[cell]*Bx_eff[cell] + By_eff[cell]*By_eff[cell] + Bz_eff[cell]*Bz_eff[cell]);
-
+	*/
 	
 	
-	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell])/(B_eff_mod*m_mod);
-	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell])/(B_eff_mod*m_mod);
-	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell])/(B_eff_mod*m_mod);
+	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell]);///(B_eff_mod*m_mod);
+	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell]);///(B_eff_mod*m_mod);
+	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell]);///(B_eff_mod*m_mod);
 	
 	
 	torque_mod[cell] = sqrt(torque_x[cell]*torque_x[cell]+
