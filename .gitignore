@@ -9,3 +9,4 @@ Data/*
 *.log
 initial_configuration.txt
 final_configuration.txt
+InputFiles/*
