@@ -110,7 +110,7 @@ int sim(int &n_materials)
 									   field::torque_mod,
 									   material::id,
 									   simulation::equil_sim_time, input::T, input::TOL_EQ,
-							   		   input::t_min_equil, input::t_max_equil, input::delta_t_equil, input::timescale_equil, 
+							   		   input::t_min_equil, input::t_max_equil, input::delta_t_equil, input::t_step_output_equil, input::timescale_equil, 
 							   		   output::file_mx_my_mz_time,
 							   		   output::file_torques_time);
 

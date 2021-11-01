@@ -82,6 +82,7 @@ extern std::vector<double>alpha_perp; //Transversal damping parameter: adimensio
 
 extern int t_min_equil; // Time will be given as an integer. It needs to be multiplied with 10^-12 at the end.
 extern int t_max_equil;
+extern int t_step_output_equil;
 extern int delta_t_equil;
 extern double timescale_equil;
 extern double TOL_EQ;//Tolerance for stopping condition using the torque modulus.

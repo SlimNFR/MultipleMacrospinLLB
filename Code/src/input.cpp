@@ -79,6 +79,7 @@ std::vector<double>alpha_perp; //Transversal damping parameter: adimensional. Av
 
 int t_min_equil; // Time will be given as an integer. It needs to be multiplied with timescale_equil to obtain the real-time.
 int t_max_equil;
+int t_step_output_equil;
 int delta_t_equil;
 double timescale_equil;
 double TOL_EQ;//Tolerance for stopping condition using the torque modulus.
@@ -104,6 +105,7 @@ bool equilibrate;
 bool laser_dynamics;
 bool force_DW_formation;
 bool remove_precession_term;
+
 //---Functions
 int read_simulation_parameters()
 {
@@ -149,6 +151,8 @@ if(!inFile)
     std::cout <<"Initial equilibration time start [adim.]:"<< " " << input::t_min_equil << "\t "<< std::endl;
     inFile >> s1>> input::t_max_equil;
     std::cout <<"Initial equilibration time stop [adim.]:"<< " " << input::t_max_equil << "\t "<< std::endl;
+    inFile >> s1>> input::t_step_output_equil;
+    std::cout <<"Time step equilibration output [adim.]:"<< " " << input::t_step_output_equil << "\t "<< std::endl;
     inFile >> s1>> input::delta_t_equil;
     std::cout <<"Equilibration timestep [adim.]:" << " " << input::delta_t_equil << "\t"<< std::endl;
     inFile >> s1>> input::timescale_equil;

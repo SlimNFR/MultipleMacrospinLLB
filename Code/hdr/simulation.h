@@ -46,7 +46,7 @@ int equilibrate_system(int n_cells,
 					   std::vector<double> &torque_mod,
 					   std::vector<int> material_id,
 					   double &EQ_REAL_t, double T, double TOL,
-					   int t_start, int t_end, int t_step, double timescale,
+					   int t_start, int t_end, int t_step, int t_step_output, double timescale,
 					   std::ofstream &f1,
 					   std::ofstream &f2);
 
