@@ -229,7 +229,15 @@ int equilibrate_system(int n_cells,
 		//Calculate the maximum torque in the system and check stopping condition
 		field::calculate();
 		utils::max_element_1D_vec(torque_mod, max_torque_mod,max_torque_spin_id, false); 
-		if(max_torque_mod<TOL)break;
+		if(max_torque_mod<TOL)
+		{ 
+				if((t% t_step_output)!=0) //if the solver stopped but the t_step_output doesn't catch the final config, force it to output.
+				{
+					output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+				}
+				break;
+		}
+			
 			
 		//Get new step	
 		solver::heun_scheme_step(n_cells,
