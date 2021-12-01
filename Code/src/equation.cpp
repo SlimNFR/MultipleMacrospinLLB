@@ -66,9 +66,9 @@ int LLB_classic(bool remove_precession_term,
 
     if(remove_precession_term == 1)DEL=0.0;
 
-    fx = +gamma*(By_eff*mz - my*Bz_eff)*DEL + C1*(mx*Bx_eff)*mx + C2*(Bx_eff*m_squared - mx*mTimesB);
-    fy = -gamma*(Bx_eff*mz - mx*Bz_eff)*DEL + C1*(my*By_eff)*my + C2*(By_eff*m_squared - my*mTimesB);
-    fz = +gamma*(Bx_eff*my - mx*By_eff)*DEL + C1*(mz*Bz_eff)*mz + C2*(Bz_eff*m_squared - mz*mTimesB);
+    fx = (+gamma*(By_eff*mz - my*Bz_eff)*DEL) + C1*(mTimesB)*mx + (C2*(Bx_eff*m_squared - mx*mTimesB));
+    fy = (-gamma*(Bx_eff*mz - mx*Bz_eff)*DEL) + C1*(mTimesB)*my + (C2*(By_eff*m_squared - my*mTimesB));
+    fz = (+gamma*(Bx_eff*my - mx*By_eff)*DEL) + C1*(mTimesB)*mz + (C2*(Bz_eff*m_squared - mz*mTimesB));
 
     
     //std::cout<<"Bx_eff: "<<Bx_eff<<"|By_eff: "<<By_eff<<"|Bz_eff: "<<Bz_eff

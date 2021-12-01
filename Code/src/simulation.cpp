@@ -217,12 +217,25 @@ int equilibrate_system(int n_cells,
 	
 		EQ_REAL_t = t*timescale; //This is the real equilibration time obtained multiplying the imaginary time t by the associated timescale 
 
-			
-		//Output
-		if( (t% t_step_output)==0)
+		if(t<200)
 		{
+			//The first 10.000 steps, plot everything
+			if( (t% 10)==0)
+			{
 			output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+			}
+
+		}			
+
+		else if(t>=200)
+		{
+				//Output
+			if( (t% t_step_output)==0)
+			{
+			output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+			}
 		}
+	
 
 		//output::torques_f(n_cells,EQ_REAL_t,f2);
 

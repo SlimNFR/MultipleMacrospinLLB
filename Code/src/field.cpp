@@ -43,6 +43,8 @@ int uniax_anis_f(int n_cells,
 	{	
 		mat = mat_id[cell];//Get the material id of the spin
 		double Hk = 2.0*K[mat]/Ms[mat];
+
+		//std::cout<<"Hk: "<<Hk<<"\n";
 		Bx_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ex[mat];	//B_ani : [T]
 		By_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ey[mat];
 		Bz_ani[cell] = Hk*(mx[cell]*ex[mat] + my[cell]*ey[mat] + mz[cell]*ez[mat])*ez[mat];
@@ -98,7 +100,9 @@ int exchange_f(int n_cells, double lengthscale,
 
 			neighbour = int_list[count_neighbour]; //Get neighbour from interaction list
 			mat_id_neighbour=material_id[neighbour]; //Get material id of neighbour
+
 			A = A_T_matrix[mat_id_cell][mat_id_neighbour]; //Get exchange from exchange matrix
+			//std::cout<<"Exchange constant:A"<<A<<"\n";
 			//std::cout<<"Exchange is: "<<A<<"\n";
 			//Calculate exchange
 			Bx_exc[cell] += (2.0*A/pre_factor)*(mx[neighbour] - mx[cell]); //  [T]
@@ -145,6 +149,7 @@ int longitudinal_f(int n_cells,
 		By_lon[cell] = pre_factor*my[cell];
 		Bz_lon[cell] = pre_factor*mz[cell];
 
+		//std::cout<<"Pre-factor lon field : "<<pre_factor<<"\n";
 		//std::cout<<"Bx_lon: "<<Bx_lon[cell]<<"By_lon: "<<By_lon[cell]<<"Bz_lon: "<<Bz_lon[cell]<<"\n";
 	}
 
@@ -317,7 +322,15 @@ int effective_torque_f(int n_cells,
 	Bz_eff[cell]=Bz_eff[cell]-field::Bz_lon[cell];
 	B_eff_mod=sqrt(Bx_eff[cell]*Bx_eff[cell] + By_eff[cell]*By_eff[cell] + Bz_eff[cell]*Bz_eff[cell]);
 	*/
-	
+
+
+	/*
+	torque_x[cell] = (mx[cell]*Bx_eff[cell]+my[cell]*By_eff[cell]+ mz[cell]*Bz_eff[cell])*mx[cell];
+	torque_y[cell] = (mx[cell]*Bx_eff[cell]+my[cell]*By_eff[cell]+ mz[cell]*Bz_eff[cell])*my[cell];
+	torque_z[cell] = (mx[cell]*Bx_eff[cell]+my[cell]*By_eff[cell]+ mz[cell]*Bz_eff[cell])*mz[cell];
+	*/
+
+
 	
 	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell]);///(B_eff_mod*m_mod);
 	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell]);///(B_eff_mod*m_mod);

@@ -49,18 +49,47 @@ int heun_scheme_step(int n_cells,
 
 	double REAL_DT = delta_t*timescale;
 
+	
+	/*
+	std::cout<<"New_step"<<"\n";
+	std::cout<<"macrospin::mz[cell] Initially: "<<macrospin::mz[0]<<"\n";
+	std::cout<<"mz0[cell]"<<mz_0[0]<<"\n";
+	std::cout<<"Initially: Lon field : "<<field::Bx_lon[0]<<" "<<field::By_lon[0]<<" "<<field::Bz_lon[0]<<"\n";
+	std::cout<<"Initially: Anis field: "<<field::Bx_ani[0]<<" "<<field::By_ani[0]<<" "<<field::Bz_ani[0]<<"\n";
+	std::cout<<"Initially: Exc field: "<<field::Bx_exc[0]<<" "<<field::By_exc[0]<<" "<<field::Bz_exc[0]<<"\n";
+	std::cout<<"Initially: Zeem field: "<<field::Bx_app[0]<<" "<<field::By_app[0]<<" "<<field::Bz_app[0]<<"\n";
+	*/
 	//First Heun step
 	for(int cell=0; cell<n_cells; cell++)
 	{
+	//
 		int mat_id = material_id[cell];
 		dfunc(remove_precession_term,mx_0[cell],my_0[cell],mz_0[cell],Bx_eff[cell],By_eff[cell],Bz_eff[cell],
 			  gamma,alpha_par[mat_id],alpha_perp[mat_id],fx_0[cell],fy_0[cell],fz_0[cell]);
+	//
+		macrospin::mx[cell]=mx_0[cell]+REAL_DT*fx_0[cell];
+		macrospin::my[cell]=my_0[cell]+REAL_DT*fy_0[cell];
+		macrospin::mz[cell]=mz_0[cell]+REAL_DT*fz_0[cell];
+
 	}
+	
 
+	field::calculate();
+	/*
+	std::cout<<"macrospin::mz[cell] Temporary:"<<macrospin::mz[0]<<"\n";
+	std::cout<<"mz_n1[cell] Temporary "<<mz_n1[0]<<"\n";
+	//std::cout<<"Field bfore: "<<Bz_eff[0]<<"\n";
 	//Recalculate fields after first Heun step
-	field::calculate();		
+	
+	std::cout<<"Temporary: Lon field : "<<field::Bx_lon[0]<<" "<<field::By_lon[0]<<" "<<field::Bz_lon[0]<<"\n";
+	std::cout<<"Temporary: Anis field: "<<field::Bx_ani[0]<<" "<<field::By_ani[0]<<" "<<field::Bz_ani[0]<<"\n";
+	std::cout<<"Temporary: Exc field: "<<field::Bx_exc[0]<<" "<<field::By_exc[0]<<" "<<field::Bz_exc[0]<<"\n";
+	std::cout<<"Temporary: Zeem field: "<<field::Bx_app[0]<<" "<<field::By_app[0]<<" "<<field::Bz_app[0]<<"\n";
+	*/
 
+	//std::cout<<"Field after: "<<Bz_eff[0]<<"\n";
 	//Second Heun step
+
 	for(int cell=0; cell<n_cells; cell++)
 	{
 		int mat_id = material_id[cell];
@@ -69,21 +98,27 @@ int heun_scheme_step(int n_cells,
 		
 	}
 
-
 	//Update macrospin vectors and set new initial conditions.
 	for(int cell=0; cell<n_cells; cell++)
 	{
 		int mat_id = material_id[cell];
-		mx_n1[cell] = mx_0[cell]  + (REAL_DT/2.0)*(fx_0[cell] + fx_n[cell]);
+		mx_n1[cell] = mx_0[cell]  + (REAL_DT/2.0)*(fx_0[cell] + fx_n[cell]);  
 		my_n1[cell] = my_0[cell]  + (REAL_DT/2.0)*(fy_0[cell] + fy_n[cell]);
 		mz_n1[cell] = mz_0[cell]  + (REAL_DT/2.0)*(fz_0[cell] + fz_n[cell]);
+
 
 
 		mx_0[cell] = mx_n1[cell];
 		my_0[cell] = my_n1[cell];
 		mz_0[cell] = mz_n1[cell];
-		
 	}
+	
+	/*
+	std::cout<<"macrospin::mz[cell] Final: "<<macrospin::mz[0]<<"\n";
+	std::cout<<"mz_n1[cell] Final: "<<mz_n1[0]<<"\n";
+	*/
+	//std::cout<<"mz_0+(REAL_DT/2.0)*(fz_0[cell] + fz_n[cell]): "<<mz_0[0]+(REAL_DT/2.0)*(fz_0[0] + fz_n[0])<<"\n";
+	//std::cout<<"fz_0[cell]:"<<fz_0[0]<<" fz_n[cell]:"<<fz_n[0]<<"\n";
 
 	return 0;
 

@@ -25,7 +25,9 @@ int alpha_par_f(double T, double Tc, double lambda, double &alpha_par)
 
 		//both below and above Tc,this formula applies
 		alpha_par = (2.0/3.0)*(T/Tc)*lambda;
-
+		/*
+		std::cout<<"alpha_par"<<alpha_par<<"\n";
+*/
 	return 0;
 
 }
@@ -39,6 +41,9 @@ int alpha_perp_f(double T, double Tc, double lambda, double &alpha_perp)
 		//T<=Tc case
 		else if(T<Tc)alpha_perp = lambda*(1.0-(T/(3.0*Tc)));
 
+/*
+		std::cout<<"alpha_perp"<<alpha_perp<<"\n";
+*/
 	return 0;
 }
 
