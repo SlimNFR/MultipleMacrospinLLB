@@ -105,6 +105,8 @@ bool equilibrate;
 bool laser_dynamics;
 bool force_DW_formation;
 bool remove_precession_term;
+bool remove_longitudin_term;
+bool remove_transverse_term;
 
 //---Functions
 int read_simulation_parameters()
@@ -191,6 +193,11 @@ if(!inFile)
     std::cout <<"Force DW formation [bool]:"<<"\t" <<input::force_DW_formation<< "\t"<< std::endl;
     inFile >> s1>> input::remove_precession_term;
     std::cout <<"Remove precession term from LLB [bool]:"<<"\t" <<input::remove_precession_term<< "\t"<< std::endl;
+    inFile >> s1>> input::remove_longitudin_term;
+    std::cout <<"Remove longitudin. term from LLB [bool]:"<<"\t" <<input::remove_longitudin_term<< "\t"<< std::endl;
+    inFile >> s1>> input::remove_transverse_term;
+    std::cout <<"Remove transverse term from LLB [bool]:"<<"\t" <<input::remove_transverse_term<< "\t"<< std::endl;
+
 
 
     std::cout<<std::endl;

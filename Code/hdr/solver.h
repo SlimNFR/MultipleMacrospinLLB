@@ -19,12 +19,14 @@ extern int sim_time;
 
 //---Functions
 int heun_scheme_step(int n_cells,
-					 int (*dfunc)(bool,
+					 int (*dfunc)(bool, bool, bool,
 					 double, double, double,
 					 double, double, double,
 					 double, double, double,
 					 double &,double &,double &),
 					 bool remove_precession_term,
+					 bool remove_longitudin_term,
+					 bool remove_transverse_term,
 					 std::vector<int>material_id,
 					 std::vector<double> &mx_0, std::vector<double> &my_0, std::vector<double> &mz_0,
 					 std::vector<double> &mx_n1, std::vector<double> &my_n1, std::vector<double> &mz_n1,

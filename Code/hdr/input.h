@@ -106,6 +106,8 @@ extern bool equilibrate;
 extern bool laser_dynamics;
 extern bool force_DW_formation;
 extern bool remove_precession_term;
+extern bool remove_longitudin_term;
+extern bool remove_transverse_term;
 
 
 //---Functions

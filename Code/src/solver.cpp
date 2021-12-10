@@ -20,12 +20,14 @@ int sim_time = 0;
 //---Functions
 
 int heun_scheme_step(int n_cells,
-					 int (*dfunc)(bool,
+					 int (*dfunc)(bool, bool, bool,
 					 double, double, double,
 					 double, double, double,
 					 double, double, double,
 					 double &,double &,double &),
 					 bool remove_precession_term,
+					 bool remove_longitudin_term,
+					 bool remove_transverse_term,
 					 std::vector<int>material_id,
 					 std::vector<double> &mx_0, std::vector<double> &my_0, std::vector<double> &mz_0,
 					 std::vector<double> &mx_n1, std::vector<double> &my_n1, std::vector<double> &mz_n1,
@@ -49,23 +51,17 @@ int heun_scheme_step(int n_cells,
 
 	double REAL_DT = delta_t*timescale;
 
-	
-	/*
-	std::cout<<"New_step"<<"\n";
-	std::cout<<"macrospin::mz[cell] Initially: "<<macrospin::mz[0]<<"\n";
-	std::cout<<"mz0[cell]"<<mz_0[0]<<"\n";
-	std::cout<<"Initially: Lon field : "<<field::Bx_lon[0]<<" "<<field::By_lon[0]<<" "<<field::Bz_lon[0]<<"\n";
-	std::cout<<"Initially: Anis field: "<<field::Bx_ani[0]<<" "<<field::By_ani[0]<<" "<<field::Bz_ani[0]<<"\n";
-	std::cout<<"Initially: Exc field: "<<field::Bx_exc[0]<<" "<<field::By_exc[0]<<" "<<field::Bz_exc[0]<<"\n";
-	std::cout<<"Initially: Zeem field: "<<field::Bx_app[0]<<" "<<field::By_app[0]<<" "<<field::Bz_app[0]<<"\n";
-	*/
+
 	//First Heun step
 	for(int cell=0; cell<n_cells; cell++)
 	{
 	//
 		int mat_id = material_id[cell];
-		dfunc(remove_precession_term,mx_0[cell],my_0[cell],mz_0[cell],Bx_eff[cell],By_eff[cell],Bz_eff[cell],
-			  gamma,alpha_par[mat_id],alpha_perp[mat_id],fx_0[cell],fy_0[cell],fz_0[cell]);
+		dfunc(remove_precession_term,remove_longitudin_term,remove_transverse_term,
+			  mx_0[cell],my_0[cell],mz_0[cell],
+			  Bx_eff[cell],By_eff[cell],Bz_eff[cell],
+			  gamma,alpha_par[mat_id],alpha_perp[mat_id],
+			  fx_0[cell],fy_0[cell],fz_0[cell]);
 	//
 		macrospin::mx[cell]=mx_0[cell]+REAL_DT*fx_0[cell];
 		macrospin::my[cell]=my_0[cell]+REAL_DT*fy_0[cell];
@@ -75,26 +71,17 @@ int heun_scheme_step(int n_cells,
 	
 
 	field::calculate();
-	/*
-	std::cout<<"macrospin::mz[cell] Temporary:"<<macrospin::mz[0]<<"\n";
-	std::cout<<"mz_n1[cell] Temporary "<<mz_n1[0]<<"\n";
-	//std::cout<<"Field bfore: "<<Bz_eff[0]<<"\n";
-	//Recalculate fields after first Heun step
-	
-	std::cout<<"Temporary: Lon field : "<<field::Bx_lon[0]<<" "<<field::By_lon[0]<<" "<<field::Bz_lon[0]<<"\n";
-	std::cout<<"Temporary: Anis field: "<<field::Bx_ani[0]<<" "<<field::By_ani[0]<<" "<<field::Bz_ani[0]<<"\n";
-	std::cout<<"Temporary: Exc field: "<<field::Bx_exc[0]<<" "<<field::By_exc[0]<<" "<<field::Bz_exc[0]<<"\n";
-	std::cout<<"Temporary: Zeem field: "<<field::Bx_app[0]<<" "<<field::By_app[0]<<" "<<field::Bz_app[0]<<"\n";
-	*/
 
-	//std::cout<<"Field after: "<<Bz_eff[0]<<"\n";
 	//Second Heun step
 
 	for(int cell=0; cell<n_cells; cell++)
 	{
 		int mat_id = material_id[cell];
-		dfunc(remove_precession_term,mx_0[cell]+REAL_DT*fx_0[cell],my_0[cell]+REAL_DT*fy_0[cell],mz_0[cell]+REAL_DT*fz_0[cell],
-			  Bx_eff[cell],By_eff[cell],Bz_eff[cell],gamma,alpha_par[mat_id],alpha_perp[mat_id],fx_n[cell],fy_n[cell],fz_n[cell]);
+		dfunc(remove_precession_term,remove_longitudin_term,remove_transverse_term,
+			  mx_0[cell]+REAL_DT*fx_0[cell],my_0[cell]+REAL_DT*fy_0[cell],mz_0[cell]+REAL_DT*fz_0[cell],
+			  Bx_eff[cell],By_eff[cell],Bz_eff[cell],
+			  gamma,alpha_par[mat_id],alpha_perp[mat_id],
+			  fx_n[cell],fy_n[cell],fz_n[cell]);
 		
 	}
 
@@ -113,13 +100,6 @@ int heun_scheme_step(int n_cells,
 		mz_0[cell] = mz_n1[cell];
 	}
 	
-	/*
-	std::cout<<"macrospin::mz[cell] Final: "<<macrospin::mz[0]<<"\n";
-	std::cout<<"mz_n1[cell] Final: "<<mz_n1[0]<<"\n";
-	*/
-	//std::cout<<"mz_0+(REAL_DT/2.0)*(fz_0[cell] + fz_n[cell]): "<<mz_0[0]+(REAL_DT/2.0)*(fz_0[0] + fz_n[0])<<"\n";
-	//std::cout<<"fz_0[cell]:"<<fz_0[0]<<" fz_n[cell]:"<<fz_n[0]<<"\n";
-
 	return 0;
 
 }
@@ -147,7 +127,7 @@ int RK4_scheme_step(int (*dfunc)(bool,
 	double k_x, k_y, k_z = 0.0;
 
 
-
+	/*
 	//Calculate k1
 	dfunc(remove_precession_term,mx_0,my_0,mz_0,Bx_eff,By_eff,Bz_eff,gamma,alpha_par,alpha_perp,k1_x,k1_y,k1_z);
 	//std::cout<<k1_x<<" "<<k1_y<<" "<<k1_z<<"\n";		
@@ -171,7 +151,7 @@ int RK4_scheme_step(int (*dfunc)(bool,
 		my_n1 = my_0  + k_y;
 		mz_n1 = mz_0  + k_z;
 
-
+	*/
 	return 0;
 
 }

@@ -22,6 +22,8 @@ double CurieWeiss_f(double x, double T, double Tc, double eps);
 double CurieWeiss_df(double x, double T, double Tc, double eps);
 double Langevin_df(double T, double Tc, double eps, double m_e);
 int LLB_classic(bool remove_precession_term,
+				bool remove_longitudin_term,
+				bool remove_transverse_term,
 				double mx, double my, double mz,
 				double Bx_eff, double By_eff, double Bz_eff,
 				double gamma, double alpha_par, double alpha_perp,

@@ -46,6 +46,8 @@ double Langevin_df(double T, double Tc, double eps, double m_e)
 }
 
 int LLB_classic(bool remove_precession_term,
+                bool remove_longitudin_term,
+                bool remove_transverse_term,
                 double mx, double my, double mz,
                 double Bx_eff, double By_eff, double Bz_eff,
                 double gamma, double alpha_par, double alpha_perp,
@@ -58,18 +60,25 @@ int LLB_classic(bool remove_precession_term,
     double mTimesB = mx*Bx_eff + my*By_eff + mz*Bz_eff;
     double C1 = gamma*alpha_par/m_squared;
     double C2 = gamma*alpha_perp/m_squared;
-    double DEL=1.0; //This will remove the precession term from LLB if the flag remove_precession_term is set
-
+    double DEL_P=1.0; //This will remove the precession term from LLB if the flag remove_precession_term is set
+    double DEL_L=1.0;
+    double DEL_T=1.0;
+    
     //std::cout<<"|gamma: "<<gamma<<"|alpha_par: "<<alpha_par<<"|alpha_perp: "<<alpha_perp<<"\n";
     // std::cout<<"Bx_eff: "<<Bx_eff<<"|By_eff: "<<By_eff<<"|Bz_eff: "<<Bz_eff
     //    <<"|mx: "<<mx<<"|my: "<<my<<"|mz: "<<mz<<"\n";
 
-    if(remove_precession_term == 1)DEL=0.0;
+    if(remove_precession_term == 1)DEL_P=0.0;
+    if(remove_longitudin_term == 1)DEL_L=0.0;
+    if(remove_transverse_term == 1)DEL_T=0.0;
+    
 
-    fx = (+gamma*(By_eff*mz - my*Bz_eff)*DEL) + C1*(mTimesB)*mx + (C2*(Bx_eff*m_squared - mx*mTimesB));
-    fy = (-gamma*(Bx_eff*mz - mx*Bz_eff)*DEL) + C1*(mTimesB)*my + (C2*(By_eff*m_squared - my*mTimesB));
-    fz = (+gamma*(Bx_eff*my - mx*By_eff)*DEL) + C1*(mTimesB)*mz + (C2*(Bz_eff*m_squared - mz*mTimesB));
+    fx = (+gamma*(By_eff*mz - my*Bz_eff))*DEL_P + (C1*(mTimesB)*mx)*DEL_L + (C2*(Bx_eff*m_squared - mx*mTimesB))*DEL_T;
+    fy = (-gamma*(Bx_eff*mz - mx*Bz_eff))*DEL_P + (C1*(mTimesB)*my)*DEL_L + (C2*(By_eff*m_squared - my*mTimesB))*DEL_T;
+    fz = (+gamma*(Bx_eff*my - mx*By_eff))*DEL_P + (C1*(mTimesB)*mz)*DEL_L + (C2*(Bz_eff*m_squared - mz*mTimesB))*DEL_T;
 
+    std::cout<<"P: "<<DEL_P<<" L:"<<DEL_L<<" T:"<<DEL_T<<"\n";
+    std::cout<<"input P: "<<remove_precession_term<<"input L: "<<remove_longitudin_term<<"input T: "<<remove_transverse_term<<"\n";
     
     //std::cout<<"Bx_eff: "<<Bx_eff<<"|By_eff: "<<By_eff<<"|Bz_eff: "<<Bz_eff
     //    <<"|mx: "<<mx<<"|my: "<<my<<"|mz: "<<mz<<"\n";
