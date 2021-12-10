@@ -77,14 +77,6 @@ int LLB_classic(bool remove_precession_term,
     fy = (-gamma*(Bx_eff*mz - mx*Bz_eff))*DEL_P + (C1*(mTimesB)*my)*DEL_L + (C2*(By_eff*m_squared - my*mTimesB))*DEL_T;
     fz = (+gamma*(Bx_eff*my - mx*By_eff))*DEL_P + (C1*(mTimesB)*mz)*DEL_L + (C2*(Bz_eff*m_squared - mz*mTimesB))*DEL_T;
 
-    std::cout<<"P: "<<DEL_P<<" L:"<<DEL_L<<" T:"<<DEL_T<<"\n";
-    std::cout<<"input P: "<<remove_precession_term<<"input L: "<<remove_longitudin_term<<"input T: "<<remove_transverse_term<<"\n";
-    
-    //std::cout<<"Bx_eff: "<<Bx_eff<<"|By_eff: "<<By_eff<<"|Bz_eff: "<<Bz_eff
-    //    <<"|mx: "<<mx<<"|my: "<<my<<"|mz: "<<mz<<"\n";
-    
-    //std::cout<<"|fx: "<<fx<<"|fy: "<<fy<<"|fz: "<<fz<<"\n";
-
     return 0;
 }
 
