@@ -4,7 +4,7 @@
 //---Standard libraries
 #include<iostream>
 #include<cmath>
-
+#include<vector>
 //---User-defined libraries
 #include"field.h"
 #include"structure.h"
@@ -209,7 +209,7 @@ int torque_app_f(int n_cells,
 
 
 
-	torque_app_x[cell] = (my[cell]*Bz_app[cell] - mz[cell]*By_app[cell]);
+	torque_app_x[cell] = (my[cell]*Bz_app[cell] - mz[cell]*By_app[cell]); 
 	torque_app_y[cell] = (mz[cell]*Bx_app[cell] - mx[cell]*Bz_app[cell]);
 	torque_app_z[cell] = (mx[cell]*By_app[cell] - my[cell]*Bx_app[cell]);
 
@@ -300,6 +300,9 @@ int torque_lon_f(int n_cells,
 
 
 int effective_torque_f(int n_cells,
+					   bool remove_precession_term,
+					   bool remove_longitudin_term,
+					   bool remove_transverse_term,
 					   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
 					   std::vector<double> Bx_eff, std::vector<double> By_eff, std::vector<double> Bz_eff,
 					   std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
@@ -331,11 +334,23 @@ int effective_torque_f(int n_cells,
 	*/
 
 
+
+	double m_squared = mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell];
+    double mTimesB = mx[cell]*Bx_eff[cell] + my[cell]*By_eff[cell] + mz[cell]*Bz_eff[cell];
+    double DEL_P=1.0; //This will remove the precession term from LLB if the flag remove_precession_term is set
+    double DEL_L=1.0;
+    double DEL_T=1.0;
+
+
+    if(remove_precession_term == 1)DEL_P=0.0;
+    if(remove_longitudin_term == 1)DEL_L=0.0;
+    if(remove_transverse_term == 1)DEL_T=0.0;
+
 	
-	torque_x[cell] = (my[cell]*Bz_eff[cell] - mz[cell]*By_eff[cell]);///(B_eff_mod*m_mod);
-	torque_y[cell] = (mz[cell]*Bx_eff[cell] - mx[cell]*Bz_eff[cell]);///(B_eff_mod*m_mod);
-	torque_z[cell] = (mx[cell]*By_eff[cell] - my[cell]*Bx_eff[cell]);///(B_eff_mod*m_mod);
-	
+    torque_x[cell]=(By_eff[cell]*mz[cell] - my[cell]*Bz_eff[cell])*DEL_P + (mTimesB)*mx[cell]*DEL_L + (Bx_eff[cell]*m_squared - mx[cell]*mTimesB)*DEL_T;
+    torque_y[cell]=(Bx_eff[cell]*mz[cell] - mx[cell]*Bz_eff[cell])*DEL_P + (mTimesB)*my[cell]*DEL_L + (By_eff[cell]*m_squared - my[cell]*mTimesB)*DEL_T;
+    torque_z[cell]=(Bx_eff[cell]*my[cell] - mx[cell]*By_eff[cell])*DEL_P + (mTimesB)*mz[cell]*DEL_L + (Bz_eff[cell]*m_squared - mz[cell]*mTimesB)*DEL_T;
+
 	
 	torque_mod[cell] = sqrt(torque_x[cell]*torque_x[cell]+
 				 	  	    torque_y[cell]*torque_y[cell]+
@@ -440,6 +455,9 @@ int calculate()
 						field::torque_lon_mod);
 
 	field::effective_torque_f(input::n_cells,
+							  input::remove_precession_term,
+							  input::remove_longitudin_term,
+							  input::remove_transverse_term,
 							  macrospin::mx, macrospin::my, macrospin::mz,
 							  field::Bx_eff, field::By_eff, field::Bz_eff,
 							  field::torque_x, field::torque_y, field::torque_z,

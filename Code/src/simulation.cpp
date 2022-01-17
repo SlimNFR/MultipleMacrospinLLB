@@ -4,6 +4,7 @@
 //---Standard libraries
 #include<fstream>
 #include<iostream>
+#include<vector>
 
 //---User-defined libraries
 #include"simulation.h"
@@ -220,7 +221,7 @@ int equilibrate_system(int n_cells,
 		if(t<200)
 		{
 			//The first 10.000 steps, plot everything
-			if( (t% 10)==0)
+			if( (t% 2)==0)
 			{
 			output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
 			}

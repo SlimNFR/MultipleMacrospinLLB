@@ -5,6 +5,7 @@
 #include<fstream>
 #include<iostream>
 #include<string>
+#include<vector>
 
 //---User-defined libraries
 #include"field.h"

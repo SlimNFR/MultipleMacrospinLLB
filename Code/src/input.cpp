@@ -7,6 +7,7 @@
 #include<fstream>
 #include<string>
 #include<deque>
+#include<vector>
 
 //---User-defined libraries
 #include"input.h"

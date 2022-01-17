@@ -4,6 +4,7 @@
 //---Standard libraries
 #include<fstream>
 #include<iostream>
+#include<vector>
 
 //---User-defined libraries
 #include"solver.h"

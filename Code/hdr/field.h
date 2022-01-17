@@ -87,6 +87,9 @@ int torque_lon_f(int n_cells,
 			     std::vector<double> &torque_lon_mod);
 
 int effective_torque_f(int n_cells,
+					   bool remove_precession_term,
+					   bool remove_longitudin_term,
+					   bool remove_transverse_term,
 					   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
 					   std::vector<double> Bx_eff, std::vector<double> By_eff, std::vector<double> Bz_eff,
 					   std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
