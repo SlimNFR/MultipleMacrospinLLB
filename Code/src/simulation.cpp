@@ -15,6 +15,7 @@
 #include"utils.h"
 #include"structure.h"
 #include"output.h"
+#include"energy.h"
 
 //---Namespace simulation
 
@@ -185,8 +186,8 @@ int equilibrate_system(int n_cells,
 					   std::vector<int> material_id,
 					   double &EQ_REAL_t, double T, double TOL,
 					   int t_start, int t_end, int t_step, int t_step_output, double timescale,
-					   std::ofstream &f1,
-					   std::ofstream &f2)
+					   std::ofstream &f1, std::ofstream &f2,
+					   std::ofstream &f3, std::ofstream &f4)
 
 {	//This function equilibrates the system for a given initial temperature and effective field.
 	
@@ -207,11 +208,15 @@ int equilibrate_system(int n_cells,
 
 	}
 	
+
+
 	//Time loop
 	for(int t=t_start; t<=t_end; t=t+t_step)//Loop time
 	{	
 
-		//Force edge spins to be AP		
+		energy::internal::calculate();// calculate energy
+
+		//Force edge spins to be AP	if flag is on
 		if(input::force_DW_formation)simulation::force_DW_formation_f(input::m_e,
 																  	  mx_n1, my_n1, mz_n1,
 																  	  material_id);	
@@ -223,7 +228,9 @@ int equilibrate_system(int n_cells,
 			//The first 10.000 steps, plot everything
 			if( (t% 2)==0)
 			{
-			output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+
+			output::internal::call(n_cells,EQ_REAL_t,T,f1,f2,f3,f4);				
+			
 			}
 
 		}			
@@ -233,7 +240,7 @@ int equilibrate_system(int n_cells,
 				//Output
 			if( (t% t_step_output)==0)
 			{
-			output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+				output::internal::call(n_cells,EQ_REAL_t,T,f1,f2,f3,f4);				
 			}
 		}
 	
@@ -247,7 +254,7 @@ int equilibrate_system(int n_cells,
 		{ 
 				if((t% t_step_output)!=0) //if the solver stopped but the t_step_output doesn't catch the final config, force it to output.
 				{
-					output::macrospin_vectors(n_cells, EQ_REAL_t, T, f1);
+					output::internal::call(n_cells,EQ_REAL_t,T,f1,f2,f3,f4);				
 				}
 				break;
 		}

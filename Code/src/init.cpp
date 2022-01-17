@@ -12,6 +12,8 @@
 #include"simulation.h"
 #include"structure.h"
 #include"field.h"
+#include"energy.h"
+
 //---Namespace init
 
 namespace init{
@@ -41,6 +43,8 @@ int parameters(int &n_materials)
 	macrospin::internal::set_initial_config(input::n_cells);
 
 	field::internal::alloc_memory(input::n_cells);
+	energy::internal::alloc_memory(input::n_cells);
+
 	for(int material=0; material<n_materials; material++)
 	{
 		tempscaling::internal::obtain_interpolation_polynome_mVsT_data(material); //initialise me_vs_T interpolation function	
@@ -102,6 +106,8 @@ int sim(int &n_materials)
 		{
 			tempscaling::internal::calc_parameters_at_T(material);
 		}
+
+		
 		simulation::equilibrate_system(input::n_cells,
 									   input::gamma, input::alpha_par, input::alpha_perp,
 									   macrospin::mx_0, macrospin::my_0, macrospin::mz_0,
@@ -111,8 +117,8 @@ int sim(int &n_materials)
 									   material::id,
 									   simulation::equil_sim_time, input::T, input::TOL_EQ,
 							   		   input::t_min_equil, input::t_max_equil, input::delta_t_equil, input::t_step_output_equil, input::timescale_equil, 
-							   		   output::file_mx_my_mz_time,
-							   		   output::file_torques_time);
+							   		   output::file_mx_my_mz_time, output::file_torques_time,
+							   		   output::file_energies_cell_time, output::file_total_energies_time);
 
 	}
 
