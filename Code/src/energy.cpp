@@ -108,9 +108,27 @@ std::vector<double> total_cell;
          double dprod_cell_neigh=(mx[neighbour]*mx[cell] + my[neighbour]*my[cell] + mz[neighbour]*mz[cell]);
          double dprod_cell_cell=(mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]);
 
-         exc_cell[cell] = - 2.0*A*macrocell_size[mat_id_cell]*lengthscale*(dprod_cell_neigh - dprod_cell_cell); // [Joules]
+         exc_cell[cell] += - A*macrocell_size[mat_id_cell]*lengthscale*(dprod_cell_neigh - dprod_cell_cell); // [Joules]
          
       }
+
+   }
+
+   return 0;
+ }
+
+ int total_cell_f(int n_cells,
+                  std::vector<double> anis_cell,
+                  std::vector<double> zeeman_cell,
+                  std::vector<double> exchange_cell,
+                  std::vector<double> &total_cell)
+ {
+
+
+   for(int cell=0; cell<n_cells; cell++)
+   {
+
+      total_cell[cell] = anis_cell[cell] + zeeman_cell[cell] + exchange_cell[cell];
 
    }
 
@@ -184,6 +202,7 @@ int zeeman_total_f(int n_cells,
          energy::exchange_cell.resize(n_cells,0.0);
          energy::zeeman_cell.resize(n_cells,0.0);
          energy::anis_cell.resize(n_cells,0.0);
+         energy::total_cell.resize(n_cells,0.0);
          
 
          return 0;
@@ -211,6 +230,13 @@ int zeeman_total_f(int n_cells,
                                  material::interaction_list, material::start_neighbours, material::end_neighbours, material::id,                                 
                                  macrospin::mx, macrospin::my, macrospin::mz, 
                                  energy::exchange_cell);
+
+         energy::total_cell_f(input::n_cells,
+                              energy::anis_cell,
+                              energy::zeeman_cell,
+                              energy::exchange_cell,
+                              energy::total_cell);
+
 
          energy::anis_total_f(input::n_cells,
                               energy::anis_cell,

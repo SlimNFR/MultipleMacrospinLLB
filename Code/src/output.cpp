@@ -196,11 +196,12 @@ int torques_f(int n_cells, double time, std::ofstream &f1)
 int energies_cell_f(int n_cells, double time, std::ofstream &f1)
 {
 
-
+	//f1<<"Time (s)"<<" "<<"Cell ID"<<" "<<"Zeeman En. per cell (Joule)"<<" "<<"Anis. En. per cell (Joule)"<<" "<<"Exch. En. per cell(Joule)"<<" "
+	//<<"Total En. per cell(Joule)"<<"\n";
 	for(int cell=0; cell<n_cells; cell++)
 	{
 
-		f1<<time<<" "<<cell<<" "<<energy::zeeman_cell[cell]<<" "<<energy::anis_cell[cell]<<" "<<energy::exchange_cell[cell]<<"\n";
+		f1<<time<<" "<<cell<<" "<<energy::zeeman_cell[cell]<<" "<<energy::anis_cell[cell]<<" "<<energy::exchange_cell[cell]<<" "<<energy::total_cell[cell]<<"\n";
 
 	}
 
@@ -210,6 +211,7 @@ int energies_cell_f(int n_cells, double time, std::ofstream &f1)
 int total_energies_f(double time, std::ofstream &f1)
 {
 
+	//f1<<"Time (s)"<<" "<<"Total Zeeman En.(Joule)"<<" "<<"Total Anis. En(Joule)"<<" "<<"Total Exch. En(Joule)"<<" "<<"Total En.(Joule)"<<"\n";
 	f1<<time<<" "<<energy::zeeman_total<<" "<<energy::anis_total<<" "<<energy::exchange_total<<" "<<energy::total<<"\n";
 
 

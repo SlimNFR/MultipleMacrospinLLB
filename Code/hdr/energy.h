@@ -51,6 +51,12 @@ int exchange_cell_f(int n_cells,double lengthscale,
                     std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
                     std::vector<double>& exc_cell);
 
+ int total_cell_f(int n_cells,
+                  std::vector<double> anis_cell,
+                  std::vector<double> zeeman_cell,
+                  std::vector<double> exchange_cell,
+                  std::vector<double> &total_cell);
+
 
  int anis_total_f(int n_cells,
                   std::vector<double> anis_cell,
