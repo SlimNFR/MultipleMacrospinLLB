@@ -105,10 +105,13 @@ std::vector<double> total_cell;
          
          //Calculate exchange energy
 
-         double dprod_cell_neigh=(mx[neighbour]*mx[cell] + my[neighbour]*my[cell] + mz[neighbour]*mz[cell]);
-         double dprod_cell_cell=(mx[cell]*mx[cell] + my[cell]*my[cell] + mz[cell]*mz[cell]);
+         double diff_neigh_cell_x = mx[neighbour] - mx[cell];
+         double diff_neigh_cell_y = my[neighbour] - my[cell];
+         double diff_neigh_cell_z = mz[neighbour] - mz[cell];
 
-         exc_cell[cell] += - A*macrocell_size[mat_id_cell]*lengthscale*(dprod_cell_neigh - dprod_cell_cell); // [Joules]
+         double dm_dr_squared  = pow(diff_neigh_cell_x,2.0) + pow(diff_neigh_cell_y,2.0) + pow(diff_neigh_cell_z,2.0);
+
+         exc_cell[cell] += A*macrocell_size[mat_id_cell]*lengthscale*(dm_dr_squared); // [Joules]
          
       }
 
