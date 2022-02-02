@@ -22,7 +22,9 @@ extern double total_sim_time; //Equilibration time plus laser induced dynamics
 
 //---Functions
 int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::vector<double> &my, std::vector<double> &mz,
-						 std::vector<int>material_id);
+						 std::vector<int>material_id,
+						 std::vector<int>left_edge_spins,
+						 std::vector<int>right_edge_spins);
 
 int squared_pulse_dynamics(int n_cells,
 						   double gamma, std::vector<double> &alpha_par, std::vector<double>&alpha_perp,
@@ -45,6 +47,8 @@ int equilibrate_system(int n_cells,
 					   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff,
 					   std::vector<double> &torque_mod,
 					   std::vector<int> material_id,
+					   std::vector<int>left_edge_spins,
+					   std::vector<int>right_edge_spins,
 					   double &EQ_REAL_t, double T, double TOL,
 					   int t_start, int t_end, int t_step, int t_step_output, double timescale,
 					   std::ofstream &f1, std::ofstream &f2,

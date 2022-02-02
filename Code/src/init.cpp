@@ -35,10 +35,31 @@ int parameters(int &n_materials)
 						 				   material::id, material::xcoord, material::ycoord, material::zcoord);
 
 	material::create_interaction_list(input::n_cells, material::xcoord, material::ycoord, material::zcoord,
-									  material::interaction_list, material::start_neighbours, material::end_neighbours);
+									  material::interaction_list, material::start_neighbours, material::end_neighbours,material::count_int);
 
-	
+	material::check_edge_spins(input::n_cells,
+							   input::material_nx_cells,
+							   material::id,
+							   material::count_int,
+							   material::xcoord,material::ycoord, material::zcoord,
+							   material::left_edge_spins, material::right_edge_spins);
+	/*
+	std::cout<<"\nLedge spin"<<"\n";
+	for(int i=0; i<material::left_edge_spins.size(); i++)
+	{
 
+		std::cout<<material::left_edge_spins[i]<<" ";
+
+	}
+
+	std::cout<<"\nRedge spin"<<"\n";
+	for(int i=0; i<material::right_edge_spins.size(); i++)
+	{
+
+		std::cout<<material::right_edge_spins[i]<<" ";
+
+	}
+*/
 	macrospin::internal::alloc_memory(input::n_cells);
 	macrospin::internal::set_initial_config(input::n_cells);
 
@@ -115,6 +136,8 @@ int sim(int &n_materials)
 									   field::Bx_eff,field::By_eff, field::Bz_eff,
 									   field::torque_mod,
 									   material::id,
+									   material::left_edge_spins,
+									   material::right_edge_spins,
 									   simulation::equil_sim_time, input::T, input::TOL_EQ,
 							   		   input::t_min_equil, input::t_max_equil, input::delta_t_equil, input::t_step_output_equil, input::timescale_equil, 
 							   		   output::file_mx_my_mz_time, output::file_torques_time,

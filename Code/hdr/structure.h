@@ -50,10 +50,22 @@ extern std::vector<int> id;
 extern std::vector<int> interaction_list;
 extern std::vector<int> start_neighbours;
 extern std::vector<int> end_neighbours;
+extern std::vector<int> count_int;
+extern std::vector<int> left_edge_spins;
+extern std::vector<int> right_edge_spins;
 
 
 //---Functions
 
+int check_edge_spins(int n_cells,
+                     std::vector<unsigned long long int>nx_cells_mat,
+                     std::vector<int>material_id,                     
+                     std::vector<int> count_int,
+                     std::vector<double>xcoord,
+                     std::vector<double>ycoord,
+                     std::vector<double>zcoord,
+                     std::vector<int> &left_edge_spins,
+                     std::vector<int> &right_edge_spins);
 
 int create_interaction_list(int n_cells,
                             std::vector<double> xcoord,
@@ -61,7 +73,8 @@ int create_interaction_list(int n_cells,
                             std::vector<double> zcoord,
                             std::vector<int> &int_list,
                             std::vector<int> &start,
-                            std::vector<int> &end);
+                            std::vector<int> &end,
+                            std::vector<int> &count_int);
 
 
 int generate_crystal_structure_f(int n_materials,

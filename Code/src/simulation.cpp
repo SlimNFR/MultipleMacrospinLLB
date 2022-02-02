@@ -31,44 +31,64 @@ double total_sim_time = laser_sim_time + equil_sim_time;
 
 
 int force_DW_formation_f(std::vector<double> m_e, std::vector<double> &mx, std::vector<double> &my, std::vector<double> &mz,
-						 std::vector<int>material_id)
+						 std::vector<int>material_id,
+						 std::vector<int>left_edge_spins,
+						 std::vector<int>right_edge_spins)
 {	//This function will force the macrospin vectors at the boundaries to be antiparallel
 	//I assume the two macrospins are from the same material
 	int mat_id;
 	int id;
-	//double ax, ay, az;
-	//double theta = 25.0*M_PI/180.0;
- 	//double phi = 0.0*M_PI/180.0;
 
-	
- 	
+	//Loop the edge spins on the left
+	for(int i=0; i<left_edge_spins.size();i++)
+	{
+		int cell=left_edge_spins[i];//get id of left edge cell
+		mat_id=material_id[cell]; //get material id of cell
 
-	//ax=mx[id]*cos(theta) + mz[id]*sin(theta);
-	//ay=my[id];
- 	//az=-mx[id]*sin(theta) + mz[id]*cos(theta);	
-	
-	
-	id=0;
-	mat_id = material_id[id];
-	mx[id] = 0.0;
-	my[id] = 0.0;
-	mz[id] = m_e[mat_id];	
+		if(mat_id==0) //if its sublattice 0 ,then points on +z
+		{
 
-	field::torque_mod[id]=0.0;
-	//field::Bx_eff[id]=field::By_eff[id]=field::Bz_eff[id]=0.0;
-	
-	
+			mx[cell]=0.0;
+			my[cell]=0.0;
+			mz[cell]=+m_e[mat_id];
+		}
 
- 	id=mx.size()-1;
-	mat_id = material_id[id]; //I assume it's the first and last cell are from the same material
-	mx[id] = 0.0;
-	my[id] = 0.0;
-	mz[id] = -m_e[mat_id];
+		if(mat_id==1) //if its sublattice 1, then points on -z
+		{
 
-	field::torque_mod[id]=0.0;
-	//field::Bx_eff[id]=field::By_eff[id]=field::Bz_eff[id]=0.0;
+			mx[cell]=0.0;
+			my[cell]=0.0;
+			mz[cell]=-m_e[mat_id];
 
-	
+		}
+
+	}
+
+
+	for(int i=0; i<right_edge_spins.size();i++)
+	{
+		int cell=right_edge_spins[i];//get id of left edge cell
+		mat_id=material_id[cell];
+
+		if(mat_id==0)
+		{
+
+			mx[cell]=0.0;
+			my[cell]=0.0;
+			mz[cell]=-m_e[mat_id];
+		}
+
+		if(mat_id==1)
+		{
+
+			mx[cell]=0.0;
+			my[cell]=0.0;
+			mz[cell]=+m_e[mat_id];
+
+		}
+
+	}
+
 	return 0;
 
 }
@@ -184,6 +204,8 @@ int equilibrate_system(int n_cells,
 					   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff,
 					   std::vector<double> &torque_mod,
 					   std::vector<int> material_id,
+					   std::vector<int>left_edge_spins,
+					   std::vector<int>right_edge_spins,
 					   double &EQ_REAL_t, double T, double TOL,
 					   int t_start, int t_end, int t_step, int t_step_output, double timescale,
 					   std::ofstream &f1, std::ofstream &f2,
@@ -219,7 +241,9 @@ int equilibrate_system(int n_cells,
 		//Force edge spins to be AP	if flag is on
 		if(input::force_DW_formation)simulation::force_DW_formation_f(input::m_e,
 																  	  mx_n1, my_n1, mz_n1,
-																  	  material_id);	
+																  	  material_id,
+																  	  left_edge_spins,
+																  	  right_edge_spins);	
 	
 		EQ_REAL_t = t*timescale; //This is the real equilibration time obtained multiplying the imaginary time t by the associated timescale 
 

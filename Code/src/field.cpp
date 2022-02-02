@@ -78,7 +78,8 @@ int zeeman_f(int n_cells,
 
 
 int exchange_f(int n_cells, double lengthscale,
-			   std::vector<double> m_e, std::vector<double> Ms0_SI, std::vector<unsigned long long int> macrocell_size, std::vector<std::vector<double>>A_T_matrix,
+			   std::vector<double> m_e, std::vector<double> Ms0_SI, std::vector<unsigned long long int> macrocell_size,
+			   std::vector<unsigned long long int>unitcell_size, std::vector<std::vector<double>>A_T_matrix,
 			   std::vector<int> int_list, std::vector<int> start_neighbours, std::vector<int> end_neighbours,
 			   std::vector<int> material_id,
 			   std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
@@ -91,10 +92,14 @@ int exchange_f(int n_cells, double lengthscale,
 
 	int neighbour, mat_id_neighbour, mat_id_cell;
 	double A;
+	double ucell_size_squared;
+
 	for(int cell=0; cell<n_cells; cell++) //Loop each cell
 	{
 		mat_id_cell=material_id[cell]; //Get material id of cell
-		double pre_factor = (pow(m_e[mat_id_cell],2.0)*Ms0_SI[mat_id_cell]*pow(macrocell_size[mat_id_cell]*lengthscale, 2.0));
+		ucell_size_squared=pow(unitcell_size[mat_id_cell]*lengthscale,2.0); //Get unit cell size of cell , squared
+
+		//std::cout<<"cell"<<cell<<": ";
 		for(int count_neighbour=start_neighbours[cell]; count_neighbour<end_neighbours[cell]; count_neighbour++) //Count all cell's neighbours
 		{
 
@@ -102,14 +107,37 @@ int exchange_f(int n_cells, double lengthscale,
 			mat_id_neighbour=material_id[neighbour]; //Get material id of neighbour
 
 			A = A_T_matrix[mat_id_cell][mat_id_neighbour]; //Get exchange from exchange matrix
+			//std::cout<<" |A:"<<A<<" ";
+			double pre_factor_FM = (2.0*A)/(pow(m_e[mat_id_cell],2.0)*Ms0_SI[mat_id_cell]*pow(macrocell_size[mat_id_cell]*lengthscale, 2.0));
 			//std::cout<<"Exchange constant:A"<<A<<"\n";
 			//std::cout<<"Exchange is: "<<A<<"\n";
 			//Calculate exchange
-			Bx_exc[cell] += (2.0*A/pre_factor)*(mx[neighbour] - mx[cell]); //  [T]
-			By_exc[cell] += (2.0*A/pre_factor)*(my[neighbour] - my[cell]);
-			Bz_exc[cell] += (2.0*A/pre_factor)*(mz[neighbour] - mz[cell]);
+
+			if(mat_id_cell==mat_id_neighbour)
+			{
+				Bx_exc[cell] += pre_factor_FM*(mx[neighbour] - mx[cell]); //  [T]
+				By_exc[cell] += pre_factor_FM*(my[neighbour] - my[cell]);
+				Bz_exc[cell] += pre_factor_FM*(mz[neighbour] - mz[cell]);
+
+			}
+
+			if(mat_id_cell!=mat_id_neighbour)
+			{
+				double pre_factor_AFM=4.0*A/(Ms0_SI[mat_id_cell]*ucell_size_squared);
+
+				Bx_exc[cell] += pre_factor_AFM*(mx[neighbour]); //  [T]
+				By_exc[cell] += pre_factor_AFM*(my[neighbour]);
+				Bz_exc[cell] += pre_factor_AFM*(mz[neighbour]);
+
+
+			}
+
+
+
+			
 		}
 
+		//std::cout<<"\n";
 		//std::cout<<"Cell: "<<cell<<" |Bx_exc_cell:"<<Bx_exc[cell]<<" |By__exc_cell:"<<By_exc[cell]<<" |Bz__exc_cell:"<<Bz_exc[cell]<<"\n";
 				 
 	}
@@ -363,13 +391,28 @@ int effective_torque_f(int n_cells,
 
 int adjust_field_f(int n_cells,
 				   bool force_DW_formation,
+				   std::vector<int>left_edge_spins,
+				   std::vector<int>right_edge_spins,
 				   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff)
 {	//this function helps me readjust torques 
 
 	if(force_DW_formation==true)
 	{	//in the case of DW formation I want the effective fields on the edge to be zero.
-		Bx_eff[0]=By_eff[0]=Bz_eff[0]=0.0;
-		Bx_eff[n_cells-1]=By_eff[n_cells-1]=Bz_eff[n_cells-1]=0.0;
+		for(int i=0; i<left_edge_spins.size();i++)
+		{
+			int cell = left_edge_spins[i];
+			Bx_eff[cell]=By_eff[cell]=Bz_eff[cell]=0.0;
+
+		}
+
+		for(int i=0; i<right_edge_spins.size();i++)
+		{
+			int cell = right_edge_spins[i];
+			Bx_eff[cell]=By_eff[cell]=Bz_eff[cell]=0.0;
+
+		}
+
+
 	}
 
 	return 0;
@@ -377,14 +420,28 @@ int adjust_field_f(int n_cells,
 
 int adjust_torque_f(int n_cells,
 					bool force_DW_formation,
+					std::vector<int>left_edge_spins,
+					std::vector<int>right_edge_spins,
 					std::vector<double> &torque_x, std::vector<double> &torque_y, std::vector<double> &torque_z,
 					std::vector<double> &torque_mod)
 {	//this function helps me readjust torques 
 
 	if(force_DW_formation==true)
 	{	//in the case of DW formation I want the torques on the edge spins to be zero.
-		torque_mod[0]=0.0;
-		torque_mod[n_cells-1]=0.0;
+		for(int i=0; i<left_edge_spins.size();i++)
+		{
+			int cell = left_edge_spins[i];
+			torque_x[cell]=torque_y[cell]=torque_z[cell]=torque_mod[cell]=0.0;
+
+		}
+
+		for(int i=0; i<right_edge_spins.size();i++)
+		{
+			int cell = right_edge_spins[i];
+			torque_x[cell]=torque_y[cell]=torque_z[cell]=torque_mod[cell]=0.0;
+
+		}
+		
 	}
 
 	return 0;
@@ -405,7 +462,8 @@ int calculate()
 
 	
 	field::exchange_f(input::n_cells,input::lengthscale,
-					  input::m_e, input::Ms0_SI, input::macrocell_size, input::A_T_matrix,
+					  input::m_e, input::Ms0_SI, input::macrocell_size,
+					  input::unitcell_size, input::A_T_matrix,
 					  material::interaction_list, material::start_neighbours, material::end_neighbours, material::id, 
 					  macrospin::mx, macrospin::my, macrospin::mz,
 					  field::Bx_exc, field::By_exc, field::Bz_exc);
@@ -426,6 +484,8 @@ int calculate()
 	
 	field::adjust_field_f(input::n_cells,
 						  input::force_DW_formation,
+						  material::left_edge_spins,
+						  material::right_edge_spins,
 						  field::Bx_eff, field::By_eff, field::Bz_eff);
 	
 	field::torque_app_f(input::n_cells,

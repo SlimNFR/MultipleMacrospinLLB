@@ -129,8 +129,56 @@ std::vector<int> id;
 std::vector<int> interaction_list;
 std::vector<int> start_neighbours;
 std::vector<int> end_neighbours;
+std::vector<int> count_int;
+std::vector<int> left_edge_spins;
+std::vector<int> right_edge_spins;
 
 //---Functions
+int check_edge_spins(int n_cells, 
+                     std::vector<unsigned long long int>nx_cells_mat,
+                     std::vector<int>material_id,
+                     std::vector<int> count_int,
+                     std::vector<double>xcoord,
+                     std::vector<double>ycoord,
+                     std::vector<double>zcoord,
+                     std::vector<int> &left_edge_spins,
+                     std::vector<int> &right_edge_spins)
+{
+  //This function checks which are the left and right edge spins and saves their ids in two int vectors
+  double rtol = 1e-5;
+  int mat_id;
+  int nx_cells;
+
+
+  for(int cell=0; cell<n_cells; cell++)
+  {
+    mat_id=material_id[cell]; //Get material id of cell
+    nx_cells=nx_cells_mat[mat_id]; //Get number of nx cells for this material
+
+    if(count_int[cell] <=2) //1 for 1 d, 2 for 2d , 3 for 3d 
+    {
+
+      if(fabs(xcoord[cell]-0.0)<rtol) //if the spin's coordinate corresponds the left edge
+      {
+        left_edge_spins.push_back(cell);
+      }
+
+      if(fabs(xcoord[cell]-(nx_cells-1.0))<rtol) //if the spin coordinate corresponds to the right edge..
+      {
+
+        right_edge_spins.push_back(cell);
+
+      }
+
+    }
+
+
+  }
+
+
+
+  return 0;
+}
 
 
 int create_interaction_list(int n_cells,
@@ -139,13 +187,15 @@ int create_interaction_list(int n_cells,
                             std::vector<double> zcoord,
                             std::vector<int> &int_list,
                             std::vector<int> &start,
-                            std::vector<int> &end)
+                            std::vector<int> &end,
+                            std::vector<int> &count_int)
 { //This function creates the interaction list.
   //The start and end vectors will help me find the neighbours of each macrospin cell in the interaction list.
   start.resize(n_cells);
   end.resize(n_cells);
+  count_int.resize(n_cells);
 
-  double r0=1.0;//range of interactions. This is currently equal to 1,meaning only nearest neighbours are counted. 
+  double r0=1.1;//range of interactions. This is currently equal to 1.1,meaning only nearest neighbours are counted. 
                 //Atomic positions are incremented using a step of 1 in vectors xcoord, ycood, zcoord
   const double rtoll=r0*1.0e-5; //range tolerance
 
@@ -172,6 +222,7 @@ int create_interaction_list(int n_cells,
       }
     }
     start[i]=end[i]-count_interactions; //Update start list
+    count_int[i]=count_interactions; //count the number of interactions for each cell
   }
 
 
