@@ -73,7 +73,9 @@ std::vector<double> total_cell;
 
 
  int exchange_cell_f(int n_cells,double lengthscale,
-                     std::vector<unsigned long long int> macrocell_size,std::vector<std::vector<double>>A_T_matrix,
+                     std::vector<unsigned long long int> macrocell_size,
+                     std::vector<double>me,
+                     std::vector<std::vector<double>>A_T_matrix,
                      std::vector<int> int_list, std::vector<int> start_neighbours, std::vector<int> end_neighbours,
                      std::vector<int> material_id,
                      std::vector<double> mx, std::vector<double> my,std::vector<double> mz,
@@ -85,6 +87,7 @@ std::vector<double> total_cell;
 
    //Temp. variables
    int neighbour, mat_id_neighbour, mat_id_cell;
+   double me_cell, me_neighbour;
    double A;
 
 
@@ -93,6 +96,7 @@ std::vector<double> total_cell;
    {
 
       mat_id_cell=material_id[cell]; //Get material ID of cell
+      me_cell=me[mat_id_cell]; //Get me of cell
       
       //Count all cell's neighbours
       for(int count_neighbour=start_neighbours[cell]; count_neighbour<end_neighbours[cell]; count_neighbour++) 
@@ -100,14 +104,15 @@ std::vector<double> total_cell;
 
          neighbour = int_list[count_neighbour]; //Get neighbour from interaction list
          mat_id_neighbour=material_id[neighbour]; //Get material id of neighbour
+         me_neighbour=me[mat_id_neighbour]; //Get me of neighbour
 
          A = A_T_matrix[mat_id_cell][mat_id_neighbour]; //Get exchange from exchange matrix
          
          //Calculate exchange energy
 
-         double diff_neigh_cell_x = mx[neighbour] - mx[cell];
-         double diff_neigh_cell_y = my[neighbour] - my[cell];
-         double diff_neigh_cell_z = mz[neighbour] - mz[cell];
+         double diff_neigh_cell_x = mx[neighbour]/me_neighbour - mx[cell]/me_cell;
+         double diff_neigh_cell_y = my[neighbour]/me_neighbour - my[cell]/me_cell;
+         double diff_neigh_cell_z = mz[neighbour]/me_neighbour - mz[cell]/me_cell;
 
          double dm_dr_squared  = pow(diff_neigh_cell_x,2.0) + pow(diff_neigh_cell_y,2.0) + pow(diff_neigh_cell_z,2.0);
 
@@ -229,7 +234,9 @@ int zeeman_total_f(int n_cells,
                                energy::zeeman_cell);
 
          energy::exchange_cell_f(input::n_cells, input::lengthscale,
-                                 input::macrocell_size,input::A_T_matrix, 
+                                 input::macrocell_size,
+                                 input::m_e,
+                                 input::A_T_matrix, 
                                  material::interaction_list, material::start_neighbours, material::end_neighbours, material::id,                                 
                                  macrospin::mx, macrospin::my, macrospin::mz, 
                                  energy::exchange_cell);
