@@ -162,7 +162,8 @@ int macrospin_vectors(int n_cells, double time, double T, std::ofstream &f1)
 
 		double modulus = sqrt(pow(macrospin::mx[cell],2.0) + pow(macrospin::my[cell],2.0) + pow(macrospin::mz[cell],2.0) );
 
-		f1<<time<<" "<<cell<<" "<<macrospin::mx[cell]<<" "<<macrospin::my[cell]<<" "<<macrospin::mz[cell]<<" " <<modulus<< " "
+		f1<<time<<" "<<cell<<" "<<material::xcoord[cell]<<" "<<material::ycoord[cell]<<" "<<material::zcoord[cell]<<" "
+		  <<macrospin::mx[cell]<<" "<<macrospin::my[cell]<<" "<<macrospin::mz[cell]<<" " <<modulus<< " "
 		  <<T<<" "<<"\n";//Print time, magnetisation components and temperature
 
 	}

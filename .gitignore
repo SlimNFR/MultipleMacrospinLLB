@@ -11,3 +11,4 @@ initial_configuration.txt
 final_configuration.txt
 InputFiles/*
 *.txt
+*sublime-workspace
