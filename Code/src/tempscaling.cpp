@@ -115,7 +115,7 @@ int Amatrix_at_T_f(int n_materials,
 		for(int j=0;j<n_materials;j++)
 		{
 
-			if(i!=j){tempscaling::A_at_T_f(A0_matrix[i][j], sqrt(m_e[i]*m_e[j]), A_T_matrix[i][j]);} //if Materials are different, exchange will scale with the sqrt(m1m2)^2 magnetisation
+			if(i!=j){tempscaling::A_at_T_f(A0_matrix[i][j], 1.0, A_T_matrix[i][j]);} //The inter-layer exhchange of AFM type will not scale with T.
 																									 //This rule can be changed whenever
 			if(i==j){tempscaling::A_at_T_f(A0_matrix[i][j], m_e[j], A_T_matrix[i][j]);} //intralayer exchange scales with me^2
 		}
@@ -206,7 +206,7 @@ int A_vs_T_curve_f(double Tc, double A0,
 
 	for(T=0; T<=Tc+Tc; T++)
 	{	
-		tempscaling::equilibrium_magn_f((double)T, x_interpol,y_interpol,b,c,d,m_e);
+		tempscaling::equilibrium_magn_f((double)T, x_interpol, y_interpol, b, c, d, m_e);
 		tempscaling::A_at_T_f(A0, m_e, A_T);
 		f1<<T<<" "<<A_T/A0<<"\n";
 

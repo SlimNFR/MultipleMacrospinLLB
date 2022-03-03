@@ -247,10 +247,10 @@ int equilibrate_system(int n_cells,
 	
 		EQ_REAL_t = t*timescale; //This is the real equilibration time obtained multiplying the imaginary time t by the associated timescale 
 
-		if(t<200)
+		if(t<500)
 		{
 			//The first 10.000 steps, plot everything
-			if( (t% 2)==0)
+			if( (t% 5)==0)
 			{
 
 			output::internal::call(n_cells,EQ_REAL_t,T,f1,f2,f3,f4);				
@@ -259,7 +259,7 @@ int equilibrate_system(int n_cells,
 
 		}			
 
-		else if(t>=200)
+		else if(t>=500)
 		{
 				//Output
 			if( (t% t_step_output)==0)

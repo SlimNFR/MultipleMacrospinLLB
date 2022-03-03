@@ -394,7 +394,7 @@ int adjust_field_f(int n_cells,
 				   std::vector<int>left_edge_spins,
 				   std::vector<int>right_edge_spins,
 				   std::vector<double> &Bx_eff, std::vector<double> &By_eff, std::vector<double> &Bz_eff)
-{	//this function helps me readjust torques 
+{	//this function helps me readjust fields
 
 	if(force_DW_formation==true)
 	{	//in the case of DW formation I want the effective fields on the edge to be zero.
